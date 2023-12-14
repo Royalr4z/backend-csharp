@@ -1,6 +1,0 @@
-@DOCs_HostAddress = http://localhost:5131
-
-GET {{DOCs_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
