@@ -5,6 +5,8 @@ App_Data
 Logs
 PrecompiledWeb/
 
+.env
+
 _ReSharper.*
 *crunch*
 

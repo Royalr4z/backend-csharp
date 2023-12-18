@@ -1,0 +1,63 @@
+#!/bin/bash
+
+# Variáveis de configuração
+NOME_BANCO="nodotdb"
+USUARIO="postgres"
+SENHA=""
+
+# Exporte a senha como variável de ambiente para uso seguro
+export PGPASSWORD=$SENHA
+
+# Comando SQL para criar o banco de dados
+COMANDO_SQL="""
+
+    CREATE TABLE users (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR NOT NULL,
+        email VARCHAR UNIQUE NOT NULL,
+        password VARCHAR NOT NULL,
+        admin BOOLEAN DEFAULT false NOT NULL
+    );
+
+    CREATE TABLE category (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR UNIQUE NOT NULL,
+        subtitle VARCHAR NOT NULL
+    );
+
+    CREATE TABLE blogs (
+        id SERIAL PRIMARY KEY,
+        date VARCHAR NOT NULL,
+        title VARCHAR NOT NULL,
+        subtitle VARCHAR NOT NULL,
+        imageUrl VARCHAR(2083),
+        content TEXT NOT NULL,
+        userId INTEGER REFERENCES users(id) NOT NULL,
+        categoryId INTEGER REFERENCES category(id) NOT NULL
+    );
+
+    CREATE TABLE free_quote (
+        id SERIAL PRIMARY KEY,
+        date VARCHAR NOT NULL,
+        name VARCHAR NOT NULL,
+        email VARCHAR NOT NULL,
+        service VARCHAR NOT NULL,
+        message VARCHAR(1000) NOT NULL
+    );
+
+    CREATE TABLE message (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR NOT NULL,
+        email VARCHAR NOT NULL,
+        subject VARCHAR NOT NULL,
+        content VARCHAR(5000) NOT NULL
+    );
+"""
+
+# Conectar e executar o comando SQL
+psql -U $USUARIO -h localhost -d $NOME_BANCO -c "$COMANDO_SQL"
+
+# Limpe a variável de ambiente PGPASSWORD após o uso
+unset PGPASSWORD
+
+echo "Banco de dados $NOME_BANCO criado com sucesso."
