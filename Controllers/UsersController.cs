@@ -40,7 +40,8 @@ namespace backendCsharp.Controllers {
                 var user = new UserModel {
                     Id = reader.GetInt32(reader.GetOrdinal("id")),
                     Name = reader.GetString(reader.GetOrdinal("name")),
-                    Email = reader.GetString(reader.GetOrdinal("email"))
+                    Email = reader.GetString(reader.GetOrdinal("email")),
+                    Admin = reader.GetBoolean(reader.GetOrdinal("admin"))
                 };
                 users.Add(user);
             }
