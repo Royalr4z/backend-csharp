@@ -1,9 +1,11 @@
 #!/bin/bash
 
 # Variáveis de configuração
-NOME_BANCO="nodotdb"
-USUARIO="postgres"
-SENHA=""
+source ./.env
+
+NOME_BANCO=$DATABASE_NAME
+USUARIO=$DATABASE_USER
+SENHA=$DATABASE_PASSWORD
 
 # Exporte a senha como variável de ambiente para uso seguro
 export PGPASSWORD=$SENHA
@@ -60,4 +62,4 @@ psql -U $USUARIO -h localhost -d $NOME_BANCO -c "$COMANDO_SQL"
 # Limpe a variável de ambiente PGPASSWORD após o uso
 unset PGPASSWORD
 
-echo "Banco de dados $NOME_BANCO criado com sucesso."
+echo "Tabelas do Banco de dados $NOME_BANCO criado com sucesso."
