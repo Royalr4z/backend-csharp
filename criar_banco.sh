@@ -49,6 +49,7 @@ COMANDO_SQL="""
 
     CREATE TABLE message (
         id SERIAL PRIMARY KEY,
+        date VARCHAR NOT NULL,
         name VARCHAR NOT NULL,
         email VARCHAR NOT NULL,
         subject VARCHAR NOT NULL,

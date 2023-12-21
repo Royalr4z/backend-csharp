@@ -9,7 +9,7 @@ namespace backendCsharp.Controllers {
     [Route("[controller]")]
     [ApiController]
 
-    public class UsersController : ControllerBase {
+    public class MessageController : ControllerBase {
 
         private string ObtendoConfig() {
 
@@ -25,36 +25,39 @@ namespace backendCsharp.Controllers {
             return connectionString;
         }
 
-        public List<UserModel> ConsultarUsuarios() {
+        public List<MessageModel> ConsultarMessagens () {
 
             using var connection = new NpgsqlConnection(ObtendoConfig());
             connection.Open();
 
-            string sql = "SELECT * FROM users";
+            string sql = "SELECT * FROM message";
             using var cmd = new NpgsqlCommand(sql, connection);
 
-            var users = new List<UserModel>();
+            var Messages = new List<MessageModel>();
 
             using var reader = cmd.ExecuteReader();
             while (reader.Read()) {
-                var user = new UserModel {
+                var message = new MessageModel {
                     Id = reader.GetInt32(reader.GetOrdinal("id")),
+                    Date = reader.GetString(reader.GetOrdinal("date")),
                     Name = reader.GetString(reader.GetOrdinal("name")),
                     Email = reader.GetString(reader.GetOrdinal("email")),
-                    Admin = reader.GetBoolean(reader.GetOrdinal("admin"))
+                    Subject = reader.GetString(reader.GetOrdinal("subject")),
+                    Content = reader.GetString(reader.GetOrdinal("content"))
+
                 };
-                users.Add(user);
+                Messages.Add(message);
             }
 
             connection.Close();
 
-            return users;
+            return Messages;
         }
 
         [HttpGet]
-        public ActionResult<List<UserModel>> BuscarTodosUsuarios() {
+        public ActionResult<List<MessageModel>> BuscarTodasMessagens() {
 
-            return Ok(ConsultarUsuarios());
+            return Ok(ConsultarMessagens());
         }
     }
 }
