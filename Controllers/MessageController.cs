@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using backendCsharp.Models;
+using Newtonsoft.Json; // Install-Package Newtonsoft.Json
 using System;
 using Npgsql;
 using DotNetEnv;
@@ -58,6 +59,35 @@ namespace backendCsharp.Controllers {
         public ActionResult<List<MessageModel>> BuscarTodasMessagens() {
 
             return Ok(ConsultarMessagens());
+        }
+
+        [HttpPost]
+        public IActionResult Post([FromBody] dynamic dadosObtidos) {
+
+            Validate validator = new Validate();
+
+            MessageModel dados = JsonConvert.DeserializeObject<MessageModel>(dadosObtidos);
+            // int id = dadosObtidos["id"]?.Value<int>();
+ 
+            string nome = dados.Nome;
+            string email = dados.Email;
+            string subject = dados.Subject;
+            string content = dados.Content;
+
+            try {
+                validator.existsOrError(nome, @"Nome não informado");
+                validator.existsOrError(email, @"E-mail não informado");
+                validator.existsOrError(subject, @"Informe o Assunto");
+                validator.existsOrError(content, @"Mande sua mensagem");
+
+                validator.ValidateEmail(email, @"E-mail Inválido!");
+
+                return Ok();
+
+            } catch (Exception ex) {
+                return BadRequest(ex.Message);
+            }
+
         }
     }
 }
