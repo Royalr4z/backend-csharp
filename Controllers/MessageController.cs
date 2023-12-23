@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using backendCsharp.Models;
-using Newtonsoft.Json; // Install-Package Newtonsoft.Json
+using Newtonsoft.Json;
 using System;
 using Npgsql;
 using DotNetEnv;
@@ -66,10 +66,11 @@ namespace backendCsharp.Controllers {
 
             Validate validator = new Validate();
 
-            MessageModel dados = JsonConvert.DeserializeObject<MessageModel>(dadosObtidos);
-            // int id = dadosObtidos["id"]?.Value<int>();
- 
-            string nome = dados.Nome;
+            // Convertendo os Dados Obtidos para JSON
+            string jsonString = System.Text.Json.JsonSerializer.Serialize(dadosObtidos);
+            MessageModel dados = JsonConvert.DeserializeObject<MessageModel>(jsonString);
+
+            string nome = dados.Name;
             string email = dados.Email;
             string subject = dados.Subject;
             string content = dados.Content;
