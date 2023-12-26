@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using backendCsharp.Models;
 using Newtonsoft.Json;
+using System.Data.SqlClient;
+using TimeZoneConverter;
+using NodaTime;
 using System;
 using Npgsql;
 using DotNetEnv;
@@ -11,6 +14,22 @@ namespace backendCsharp.Controllers {
     [ApiController]
 
     public class MessageController : ControllerBase {
+
+        private string ObtendoData() {
+            // Defina o fuso horário desejado
+            string timeZoneId = "America/Sao_Paulo";
+
+            // Obtenha o fuso horário correspondente
+            DateTimeZone timeZone = DateTimeZoneProviders.Tzdb[timeZoneId];
+
+            // Obtenha a data e hora atual no fuso horário especificado
+            ZonedDateTime dateTimeBrasil = SystemClock.Instance.GetCurrentInstant().InZone(timeZone);
+
+            // Converta para o formato desejado (por exemplo, formato ISO 8601)
+            string formattedDateTime = dateTimeBrasil.ToString("dd/MM/yyyy HH:mm:ss", null);
+
+            return formattedDateTime;
+        }
 
         private string ObtendoConfig() {
 
@@ -82,6 +101,34 @@ namespace backendCsharp.Controllers {
                 validator.existsOrError(content, @"Mande sua mensagem");
 
                 validator.ValidateEmail(email, @"E-mail Inválido!");
+
+                using (SqlConnection connection = new SqlConnection(ObtendoConfig())) {
+                    connection.Open();
+
+                    string query = "INSERT INTO message (date, name, email, subject, content) VALUES (@Date, @Name, @Email, @Subject, @Content)";
+
+                    // Crie um comando SQL com a query e a conexão
+                    using (SqlCommand command = new SqlCommand(query, connection)) {
+
+                        command.Parameters.AddWithValue("@Date", ObtendoData());
+                        command.Parameters.AddWithValue("@Name", nome);
+                        command.Parameters.AddWithValue("@Email", email);
+                        command.Parameters.AddWithValue("@Subject", subject);
+                        command.Parameters.AddWithValue("@Content", content);
+
+                        // Execute o comando
+                        int rowsAffected = command.ExecuteNonQuery();
+
+                        // Verifique se alguma linha foi afetada (deve ser maior que 0)
+                        if (rowsAffected > 0) {
+                            Console.WriteLine("Dados inseridos com sucesso!");
+                        } else {
+                            Console.WriteLine("Falha ao inserir dados.");
+                        }
+                    }
+
+                    connection.Close();
+                }
 
                 return Ok();
 
