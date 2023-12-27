@@ -102,13 +102,13 @@ namespace backendCsharp.Controllers {
 
                 validator.ValidateEmail(email, @"E-mail Inválido!");
 
-                using (SqlConnection connection = new SqlConnection(ObtendoConfig())) {
+                using (NpgsqlConnection  connection = new NpgsqlConnection(ObtendoConfig())) {
                     connection.Open();
 
                     string query = "INSERT INTO message (date, name, email, subject, content) VALUES (@Date, @Name, @Email, @Subject, @Content)";
 
                     // Crie um comando SQL com a query e a conexão
-                    using (SqlCommand command = new SqlCommand(query, connection)) {
+                    using (NpgsqlCommand command = new NpgsqlCommand(query, connection)) {
 
                         command.Parameters.AddWithValue("@Date", ObtendoData());
                         command.Parameters.AddWithValue("@Name", nome);
