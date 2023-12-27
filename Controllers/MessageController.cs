@@ -45,12 +45,19 @@ namespace backendCsharp.Controllers {
             return connectionString;
         }
 
-        public List<MessageModel> ConsultarMessagens () {
+        public List<MessageModel> ConsultarMessagens (int? id) {
 
             using var connection = new NpgsqlConnection(ObtendoConfig());
             connection.Open();
 
-            string sql = "SELECT * FROM message";
+            string sql = "";
+
+            if (id > 0) {
+                sql = $"SELECT * FROM message WHERE id = {id}";
+            } else {
+                sql = "SELECT * FROM message";
+            }
+
             using var cmd = new NpgsqlCommand(sql, connection);
 
             var Messages = new List<MessageModel>();
@@ -75,9 +82,15 @@ namespace backendCsharp.Controllers {
         }
 
         [HttpGet]
-        public ActionResult<List<MessageModel>> BuscarTodasMessagens() {
+        public ActionResult<List<MessageModel>> Get() {
 
-            return Ok(ConsultarMessagens());
+            return Ok(ConsultarMessagens(0));
+        }
+
+        [HttpGet("{id}")]
+        public ActionResult<List<MessageModel>> GetById(int id) {
+
+            return Ok(ConsultarMessagens(id));
         }
 
         [HttpPost]
@@ -137,5 +150,9 @@ namespace backendCsharp.Controllers {
             }
 
         }
+
+
+
+
     }
 }

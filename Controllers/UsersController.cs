@@ -25,12 +25,19 @@ namespace backendCsharp.Controllers {
             return connectionString;
         }
 
-        public List<UserModel> ConsultarUsuarios() {
+        public List<UserModel> ConsultarUsuarios(int? id) {
 
             using var connection = new NpgsqlConnection(ObtendoConfig());
             connection.Open();
 
-            string sql = "SELECT * FROM users";
+            string sql = "";
+
+            if (id > 0) {
+                sql = $"SELECT * FROM users WHERE id = {id}";
+            } else {
+                sql = "SELECT * FROM users";
+            }
+
             using var cmd = new NpgsqlCommand(sql, connection);
 
             var users = new List<UserModel>();
@@ -52,9 +59,15 @@ namespace backendCsharp.Controllers {
         }
 
         [HttpGet]
-        public ActionResult<List<UserModel>> BuscarTodosUsuarios() {
+        public ActionResult<List<UserModel>> Get() {
 
-            return Ok(ConsultarUsuarios());
+            return Ok(ConsultarUsuarios(0));
+        }
+
+        [HttpGet("{id}")]
+        public ActionResult<List<UserModel>> GetById(int id) {
+
+            return Ok(ConsultarUsuarios(id));
         }
     }
 }
