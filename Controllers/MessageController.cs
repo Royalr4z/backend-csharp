@@ -45,7 +45,7 @@ namespace backendCsharp.Controllers {
             return connectionString;
         }
 
-        public List<MessageModel> ConsultarMessagens (int? id) {
+        public List<MessageModel> ConsultarMessagens(int? id) {
 
             using var connection = new NpgsqlConnection(ObtendoConfig());
             connection.Open();
@@ -81,6 +81,55 @@ namespace backendCsharp.Controllers {
             return Messages;
         }
 
+        public void InserindoDados(dynamic dadosObtidos) {
+
+            Validate validator = new Validate();
+
+            // Convertendo os Dados Obtidos para JSON
+            string jsonString = System.Text.Json.JsonSerializer.Serialize(dadosObtidos);
+            MessageModel dados = JsonConvert.DeserializeObject<MessageModel>(jsonString);
+
+            string nome = dados.Name;
+            string email = dados.Email;
+            string subject = dados.Subject;
+            string content = dados.Content;
+
+            validator.existsOrError(nome, @"Nome não informado");
+            validator.existsOrError(email, @"E-mail não informado");
+            validator.existsOrError(subject, @"Informe o Assunto");
+            validator.existsOrError(content, @"Mande sua mensagem");
+
+            validator.ValidateEmail(email, @"E-mail Inválido!");
+
+            using (NpgsqlConnection  connection = new NpgsqlConnection(ObtendoConfig())) {
+                connection.Open();
+
+                string query = "INSERT INTO message (date, name, email, subject, content) VALUES (@Date, @Name, @Email, @Subject, @Content)";
+
+                // Crie um comando SQL com a query e a conexão
+                using (NpgsqlCommand command = new NpgsqlCommand(query, connection)) {
+
+                    command.Parameters.AddWithValue("@Date", ObtendoData());
+                    command.Parameters.AddWithValue("@Name", nome);
+                    command.Parameters.AddWithValue("@Email", email);
+                    command.Parameters.AddWithValue("@Subject", subject);
+                    command.Parameters.AddWithValue("@Content", content);
+
+                    // Execute o comando
+                    int rowsAffected = command.ExecuteNonQuery();
+
+                    // Verifique se alguma linha foi afetada (deve ser maior que 0)
+                    if (rowsAffected > 0) {
+                        Console.WriteLine("Dados inseridos com sucesso!");
+                    } else {
+                        Console.WriteLine("Falha ao inserir dados.");
+                    }
+                }
+
+                connection.Close();
+            }
+        }
+
         [HttpGet]
         public ActionResult<List<MessageModel>> Get() {
 
@@ -96,52 +145,8 @@ namespace backendCsharp.Controllers {
         [HttpPost]
         public IActionResult Post([FromBody] dynamic dadosObtidos) {
 
-            Validate validator = new Validate();
-
-            // Convertendo os Dados Obtidos para JSON
-            string jsonString = System.Text.Json.JsonSerializer.Serialize(dadosObtidos);
-            MessageModel dados = JsonConvert.DeserializeObject<MessageModel>(jsonString);
-
-            string nome = dados.Name;
-            string email = dados.Email;
-            string subject = dados.Subject;
-            string content = dados.Content;
-
             try {
-                validator.existsOrError(nome, @"Nome não informado");
-                validator.existsOrError(email, @"E-mail não informado");
-                validator.existsOrError(subject, @"Informe o Assunto");
-                validator.existsOrError(content, @"Mande sua mensagem");
-
-                validator.ValidateEmail(email, @"E-mail Inválido!");
-
-                using (NpgsqlConnection  connection = new NpgsqlConnection(ObtendoConfig())) {
-                    connection.Open();
-
-                    string query = "INSERT INTO message (date, name, email, subject, content) VALUES (@Date, @Name, @Email, @Subject, @Content)";
-
-                    // Crie um comando SQL com a query e a conexão
-                    using (NpgsqlCommand command = new NpgsqlCommand(query, connection)) {
-
-                        command.Parameters.AddWithValue("@Date", ObtendoData());
-                        command.Parameters.AddWithValue("@Name", nome);
-                        command.Parameters.AddWithValue("@Email", email);
-                        command.Parameters.AddWithValue("@Subject", subject);
-                        command.Parameters.AddWithValue("@Content", content);
-
-                        // Execute o comando
-                        int rowsAffected = command.ExecuteNonQuery();
-
-                        // Verifique se alguma linha foi afetada (deve ser maior que 0)
-                        if (rowsAffected > 0) {
-                            Console.WriteLine("Dados inseridos com sucesso!");
-                        } else {
-                            Console.WriteLine("Falha ao inserir dados.");
-                        }
-                    }
-
-                    connection.Close();
-                }
+                InserindoDados(dadosObtidos);
 
                 return Ok();
 
@@ -150,8 +155,6 @@ namespace backendCsharp.Controllers {
             }
 
         }
-
-
 
 
     }
