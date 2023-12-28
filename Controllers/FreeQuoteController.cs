@@ -13,7 +13,7 @@ namespace backendCsharp.Controllers {
     [Route("[controller]")]
     [ApiController]
 
-    public class MessageController : ControllerBase {
+    public class FreeQuoteController : ControllerBase {
 
         private string ObtendoData() {
             // Defina o fuso horário desejado
@@ -45,7 +45,7 @@ namespace backendCsharp.Controllers {
             return connectionString;
         }
 
-        public List<MessageModel> ConsultarMessagens(int? id) {
+        public List<FreeQuoteModel> ConsultarDados(int? id) {
 
             using var connection = new NpgsqlConnection(ObtendoConfig());
             connection.Open();
@@ -53,32 +53,32 @@ namespace backendCsharp.Controllers {
             string sql = "";
 
             if (id > 0) {
-                sql = $"SELECT * FROM message WHERE id = {id}";
+                sql = $"SELECT * FROM free_quote WHERE id = {id}";
             } else {
-                sql = "SELECT * FROM message";
+                sql = "SELECT * FROM free_quote";
             }
 
             using var cmd = new NpgsqlCommand(sql, connection);
 
-            var Messages = new List<MessageModel>();
+            var FreeQuotes = new List<FreeQuoteModel>();
 
             using var reader = cmd.ExecuteReader();
             while (reader.Read()) {
-                var message = new MessageModel {
+                var message = new FreeQuoteModel {
                     Id = reader.GetInt32(reader.GetOrdinal("id")),
                     Date = reader.GetString(reader.GetOrdinal("date")),
                     Name = reader.GetString(reader.GetOrdinal("name")),
                     Email = reader.GetString(reader.GetOrdinal("email")),
-                    Subject = reader.GetString(reader.GetOrdinal("subject")),
-                    Content = reader.GetString(reader.GetOrdinal("content"))
+                    Service = reader.GetString(reader.GetOrdinal("service")),
+                    Message = reader.GetString(reader.GetOrdinal("message"))
 
                 };
-                Messages.Add(message);
+                FreeQuotes.Add(message);
             }
 
             connection.Close();
 
-            return Messages;
+            return FreeQuotes;
         }
 
         public void InserindoDados(dynamic dadosObtidos) {
@@ -87,24 +87,24 @@ namespace backendCsharp.Controllers {
 
             // Convertendo os Dados Obtidos para JSON
             string jsonString = System.Text.Json.JsonSerializer.Serialize(dadosObtidos);
-            MessageModel dados = JsonConvert.DeserializeObject<MessageModel>(jsonString);
+            FreeQuoteModel dados = JsonConvert.DeserializeObject<FreeQuoteModel>(jsonString);
 
             string nome = dados.Name;
             string email = dados.Email;
-            string subject = dados.Subject;
-            string content = dados.Content;
+            string service = dados.Service;
+            string message = dados.Message;
 
             validator.existsOrError(nome, @"Nome não informado");
             validator.existsOrError(email, @"E-mail não informado");
-            validator.existsOrError(subject, @"Informe o Assunto");
-            validator.existsOrError(content, @"Mande sua mensagem");
+            validator.existsOrError(service, @"Informe o Serviço");
+            validator.existsOrError(message, @"Mande sua mensagem");
 
             validator.ValidateEmail(email, @"E-mail Inválido!");
 
             using (NpgsqlConnection  connection = new NpgsqlConnection(ObtendoConfig())) {
                 connection.Open();
 
-                string query = "INSERT INTO message (date, name, email, subject, content) VALUES (@Date, @Name, @Email, @Subject, @Content)";
+                string query = "INSERT INTO free_quote (date, name, email, service, message) VALUES (@Date, @Name, @Email, @Service, @Message)";
 
                 // Crie um comando SQL com a query e a conexão
                 using (NpgsqlCommand command = new NpgsqlCommand(query, connection)) {
@@ -112,8 +112,8 @@ namespace backendCsharp.Controllers {
                     command.Parameters.AddWithValue("@Date", ObtendoData());
                     command.Parameters.AddWithValue("@Name", nome);
                     command.Parameters.AddWithValue("@Email", email);
-                    command.Parameters.AddWithValue("@Subject", subject);
-                    command.Parameters.AddWithValue("@Content", content);
+                    command.Parameters.AddWithValue("@Service", service);
+                    command.Parameters.AddWithValue("@Message", message);
 
                     // Execute o comando
                     int rowsAffected = command.ExecuteNonQuery();
@@ -130,12 +130,12 @@ namespace backendCsharp.Controllers {
             }
         }
 
-        public void DeletarMessagem(int id) {
+        public void Deletar(int id) {
 
             using (NpgsqlConnection  connection = new NpgsqlConnection(ObtendoConfig())) {
                 connection.Open();
 
-                string query = $"DELETE FROM message WHERE id = {id}";
+                string query = $"DELETE FROM free_quote WHERE id = {id}";
 
                 // Crie um comando SQL com a query e a conexão
                 using (NpgsqlCommand command = new NpgsqlCommand(query, connection)) {
@@ -156,15 +156,15 @@ namespace backendCsharp.Controllers {
         }
 
         [HttpGet]
-        public ActionResult<List<MessageModel>> Get() {
+        public ActionResult<List<FreeQuoteModel>> Get() {
 
-            return Ok(ConsultarMessagens(0));
+            return Ok(ConsultarDados(0));
         }
 
         [HttpGet("{id}")]
-        public ActionResult<List<MessageModel>> GetById(int id) {
+        public ActionResult<List<FreeQuoteModel>> GetById(int id) {
 
-            return Ok(ConsultarMessagens(id));
+            return Ok(ConsultarDados(id));
         }
 
         [HttpPost]
@@ -182,9 +182,9 @@ namespace backendCsharp.Controllers {
         }
 
         [HttpDelete("{id}")]
-        public ActionResult<List<MessageModel>> Delete(int id) {
+        public ActionResult<List<FreeQuoteModel>> Delete(int id) {
 
-            DeletarMessagem(id);
+            Deletar(id);
             
             return Ok();
         }
