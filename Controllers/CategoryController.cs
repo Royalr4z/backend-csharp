@@ -103,6 +103,44 @@ namespace backendCsharp.Controllers {
 
         private async void DeletarCategoria(int id) {
 
+            using (NpgsqlConnection  connection = new NpgsqlConnection(ObtendoConfig())) {
+                connection.Open();
+                string query = $"""SELECT * FROM blogs WHERE "categoryId" = {id}""";
+
+                // Crie um comando SQL com a query e a conexão
+                using (NpgsqlCommand command = new NpgsqlCommand(query, connection)) {
+
+                    // Execute o comando
+                    int rowsAffected = command.ExecuteNonQuery();
+                    using var reader = command.ExecuteReader();
+
+                    // Verifique se alguma linha foi afetada (deve ser maior que 0)
+                    if (reader.Read()) {
+                        throw new Exception("Categoria possui Blogs.");
+                    }
+                }
+
+                connection.Close();
+            }
+
+            using (NpgsqlConnection  connection = new NpgsqlConnection(ObtendoConfig())) {
+                connection.Open();
+                string query = $"DELETE FROM category WHERE id = {id}";
+
+                // Crie um comando SQL com a query e a conexão
+                using (NpgsqlCommand command = new NpgsqlCommand(query, connection)) {
+
+                    // Execute o comando
+                    int rowsAffected = command.ExecuteNonQuery();
+
+                    // Verifique se alguma linha foi afetada (deve ser maior que 0)
+                    if (rowsAffected == 0) {
+                        throw new Exception("Categoria não foi encontrado.");
+                    }
+                }
+
+                connection.Close();
+            }
 
         }
 
