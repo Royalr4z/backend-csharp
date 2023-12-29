@@ -62,7 +62,26 @@ namespace backendCsharp.Controllers {
 
             using (NpgsqlConnection  connection = new NpgsqlConnection(ObtendoConfig())) {
                 connection.Open();
+                string query = $"""SELECT * FROM blogs WHERE "userId" = {id}""";
 
+                // Crie um comando SQL com a query e a conexão
+                using (NpgsqlCommand command = new NpgsqlCommand(query, connection)) {
+
+                    // Execute o comando
+                    int rowsAffected = command.ExecuteNonQuery();
+                    using var reader = command.ExecuteReader();
+
+                    // Verifique se alguma linha foi afetada (deve ser maior que 0)
+                    if (reader.Read()) {
+                        throw new Exception("Usuário possui Blogs.");
+                    }
+                }
+
+                connection.Close();
+            }
+
+            using (NpgsqlConnection  connection = new NpgsqlConnection(ObtendoConfig())) {
+                connection.Open();
                 string query = $"DELETE FROM users WHERE id = {id}";
 
                 // Crie um comando SQL com a query e a conexão
@@ -72,15 +91,14 @@ namespace backendCsharp.Controllers {
                     int rowsAffected = command.ExecuteNonQuery();
 
                     // Verifique se alguma linha foi afetada (deve ser maior que 0)
-                    if (rowsAffected > 0) {
-                        Console.WriteLine("Dados deletados com sucesso!");
-                    } else {
-                        Console.WriteLine("Falha ao Deletar dados.");
+                    if (rowsAffected == 0) {
+                        throw new Exception("Usuário não foi encontrado.");
                     }
                 }
 
                 connection.Close();
             }
+
         }
 
         [HttpGet]
@@ -98,9 +116,13 @@ namespace backendCsharp.Controllers {
         [HttpDelete("{id}")]
         public ActionResult<List<MessageModel>> Delete(int id) {
 
-            DeletarUsuario(id);
-            
-            return Ok();
+            try {
+                DeletarUsuario(id);
+                return Ok();
+
+            } catch (Exception ex) {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
