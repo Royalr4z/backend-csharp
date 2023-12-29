@@ -29,7 +29,7 @@ namespace backendCsharp.Controllers {
             return connectionString;
         }
 
-        public List<CategoryModel> ConsultarUsuarios(int? id) {
+        public List<CategoryModel> ConsultarCategorias(int? id) {
 
             using var connection = new NpgsqlConnection(ObtendoConfig());
             connection.Open();
@@ -101,7 +101,7 @@ namespace backendCsharp.Controllers {
             }
         }
 
-        private async void DeletarUsuario(int id) {
+        private async void DeletarCategoria(int id) {
 
 
         }
@@ -109,13 +109,13 @@ namespace backendCsharp.Controllers {
         [HttpGet]
         public ActionResult<List<CategoryModel>> Get() {
 
-            return Ok(ConsultarUsuarios(0));
+            return Ok(ConsultarCategorias(0));
         }
 
         [HttpGet("{id}")]
         public ActionResult<List<CategoryModel>> GetById(int id) {
 
-            return Ok(ConsultarUsuarios(id));
+            return Ok(ConsultarCategorias(id));
         }
 
         [HttpPost]
@@ -137,7 +137,7 @@ namespace backendCsharp.Controllers {
             
             try {
 
-                DeletarUsuario(id);
+                DeletarCategoria(id);
                 return Ok();
 
             } catch (Exception ex) {
