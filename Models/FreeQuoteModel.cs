@@ -9,5 +9,12 @@ namespace backendCsharp.Models {
         public string Service { get; set; }
         public string Message { get; set; }
 
+        public FreeQuoteModel() {
+            Name = string.Empty;
+            Email = string.Empty;
+            Service = string.Empty;
+            Message = string.Empty;
+        }
+
     }
 }

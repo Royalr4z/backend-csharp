@@ -6,5 +6,10 @@ namespace backendCsharp.Models {
         public string Name { get; set; }
         public string Subtitle { get; set; }
 
+        public CategoryModel() {
+            Name = string.Empty;
+            Subtitle = string.Empty;
+        }
+
     }
 }

@@ -37,13 +37,14 @@ namespace backendCsharp.Controllers {
             string sql = "";
 
             if (id > 0) {
-                sql = @$"SELECT blogs.*, users.name AS userName, category.name AS categoryName
-                FROM blogs WHERE blogs.id = {id} INNER JOIN users ON blogs.userId = users.id
-                INNER JOIN category ON blogs.categoryId = category.id;";
+                sql = $@"SELECT blogs.*, users.name AS userName, category.name AS categoryName
+                FROM blogs INNER JOIN users ON blogs.""userId"" = users.id
+                INNER JOIN category ON blogs.""categoryId"" = category.id
+                WHERE blogs.id = {id};";
             } else {
-                sql = @"SELECT blogs.*, users.name AS userName, category.name AS categoryName
-                FROM blogs INNER JOIN users ON blogs.userId = users.id
-                INNER JOIN category ON blogs.categoryId = category.id;";
+                sql = $@"SELECT blogs.*, users.name AS userName, category.name AS categoryName
+                FROM blogs INNER JOIN users ON blogs.""userId"" = users.id
+                INNER JOIN category ON blogs.""categoryId"" = category.id;";
             }
 
             using var cmd = new NpgsqlCommand(sql, connection);
@@ -54,6 +55,7 @@ namespace backendCsharp.Controllers {
             while (reader.Read()) {
                 var blog = new BlogsModel {
                     Id = reader.GetInt32(reader.GetOrdinal("id")),
+                    Date = reader.GetString(reader.GetOrdinal("date")),
                     Title = reader.GetString(reader.GetOrdinal("title")),
                     Subtitle = reader.GetString(reader.GetOrdinal("subtitle")),
                     ImageUrl = reader.GetString(reader.GetOrdinal("imageUrl")),
@@ -73,36 +75,56 @@ namespace backendCsharp.Controllers {
 
         public void InserindoDados(dynamic dadosObtidos) {
 
-            // Validate validator = new Validate();
+            Validate validator = new Validate();
 
-            // // Convertendo os Dados Obtidos para JSON
-            // string jsonString = System.Text.Json.JsonSerializer.Serialize(dadosObtidos);
-            // BlogsModel dados = JsonConvert.DeserializeObject<BlogsModel>(jsonString);
+            // Convertendo os Dados Obtidos para JSON
+            string jsonString = System.Text.Json.JsonSerializer.Serialize(dadosObtidos);
+            BlogsModel dados = JsonConvert.DeserializeObject<BlogsModel>(jsonString);
 
-            // string nome = dados.Name;
-            // string subtitle = dados.Subtitle;
+            string date = dados.Date;
+            string title = dados.Title;
+            string subtitle = dados.Subtitle;
+            string imageUrl = dados.ImageUrl;
+            string content = dados.Content;
+            int userId = dados.UserId;
+            int categoryId = dadosCategoryId;
 
-            // validator.existsOrError(nome, @"Nome não informado");
-            // validator.existsOrError(subtitle, @"Informe a Descrição");
+            validator.existsOrError(date, @"Data não informada");
+            validator.existsOrError(title, @"Informe o Título!");
+            validator.existsOrError(subtitle, @"Informe o Descrição!");
+            validator.existsOrError(content, @"Coloque o Conteúdo!");
+            validator.existsOrError(userId, @"Informe o Usuário!");
+            validator.existsOrError(categoryId, @"Informe a Categoria!");
 
-            // using (NpgsqlConnection  connection = new NpgsqlConnection(ObtendoConfig())) {
-            //     connection.Open();
+            using (NpgsqlConnection  connection = new NpgsqlConnection(ObtendoConfig())) {
+                connection.Open();
 
-            //     string query = "INSERT INTO category (name, subtitle ) VALUES (@Name, @Subtitle)";
+                string query = @"INSERT INTO blogs (date, title, subtitle, content, userId, categoryId)
+                                 VALUES (@Date, @Title, @Subtitle, @Content, @UserId, @CategoryId)";
 
-            //     // Crie um comando SQL com a query e a conexão
-            //     using (NpgsqlCommand command = new NpgsqlCommand(query, connection)) {
+                // Crie um comando SQL com a query e a conexão
+                using (NpgsqlCommand command = new NpgsqlCommand(query, connection)) {
 
-            //         command.Parameters.AddWithValue("@Name", nome);
-            //         command.Parameters.AddWithValue("@Subtitle", subtitle);
+                    command.Parameters.AddWithValue("@Date", date);
+                    command.Parameters.AddWithValue("@Title", title);
+                    command.Parameters.AddWithValue("@Subtitle", subtitle);
+                    command.Parameters.AddWithValue("@Content", content);
+                    command.Parameters.AddWithValue("@UserId", userId);
+                    command.Parameters.AddWithValue("@CategoryId", categoryId);
 
-            //         // Execute o comando
-            //         int rowsAffected = command.ExecuteNonQuery();
+                    // Execute o comando
+                    int rowsAffected = command.ExecuteNonQuery();
 
-            //     }
+                    // Verifique se alguma linha foi afetada (deve ser maior que 0)
+                    if (rowsAffected > 0) {
+                        Console.WriteLine("Dados inseridos com sucesso!");
+                    } else {
+                        Console.WriteLine("Falha ao inserir dados.");
+                    }
+                }
 
-            //     connection.Close();
-            // }
+                connection.Close();
+            }
         }
 
         private async void DeletarBlog(int id) {
