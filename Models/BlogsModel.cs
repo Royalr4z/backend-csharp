@@ -6,11 +6,11 @@ namespace backendCsharp.Models {
         public string Date { get; set; }
         public string Title { get; set; }
         public string Subtitle { get; set; }
-        public string ImageUrl { get; set; }
+        public string? ImageUrl { get; set; }
         public string Content { get; set; }
-        public string UserId { get; set; }
+        public dynamic UserId { get; set; }
         public string? UserName { get; set; }
-        public string CategoryId { get; set; }
+        public dynamic CategoryId { get; set; }
         public string? CategoryName { get; set; }
 
         public BlogsModel() {

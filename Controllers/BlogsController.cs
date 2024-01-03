@@ -58,11 +58,11 @@ namespace backendCsharp.Controllers {
                     Date = reader.GetString(reader.GetOrdinal("date")),
                     Title = reader.GetString(reader.GetOrdinal("title")),
                     Subtitle = reader.GetString(reader.GetOrdinal("subtitle")),
-                    ImageUrl = reader.GetString(reader.GetOrdinal("imageUrl")),
+                    ImageUrl = reader.IsDBNull(reader.GetOrdinal("imageUrl")) ? "" : reader.GetString(reader.GetOrdinal("imageUrl")),
                     Content = reader.GetString(reader.GetOrdinal("content")),
-                    UserId = reader.GetString(reader.GetOrdinal("userId")),
+                    UserId = reader.GetInt32(reader.GetOrdinal("userId")),
                     UserName = reader.GetString(reader.GetOrdinal("userName")),
-                    CategoryId = reader.GetString(reader.GetOrdinal("categoryId")),
+                    CategoryId = reader.GetInt32(reader.GetOrdinal("categoryId")),
                     CategoryName = reader.GetString(reader.GetOrdinal("categoryName")),
                 };
                 blogs.Add(blog);
@@ -99,7 +99,7 @@ namespace backendCsharp.Controllers {
             using (NpgsqlConnection  connection = new NpgsqlConnection(ObtendoConfig())) {
                 connection.Open();
 
-                string query = @"INSERT INTO blogs (date, title, subtitle, content, userId, categoryId)
+                string query = $@"INSERT INTO blogs (date, title, subtitle, content, ""userId"", ""categoryId"")
                                  VALUES (@Date, @Title, @Subtitle, @Content, @UserId, @CategoryId)";
 
                 // Crie um comando SQL com a query e a conexão
@@ -109,8 +109,8 @@ namespace backendCsharp.Controllers {
                     command.Parameters.AddWithValue("@Title", title);
                     command.Parameters.AddWithValue("@Subtitle", subtitle);
                     command.Parameters.AddWithValue("@Content", content);
-                    command.Parameters.AddWithValue("@UserId", userId);
-                    command.Parameters.AddWithValue("@CategoryId", categoryId);
+                    command.Parameters.AddWithValue("@UserId", int.Parse(userId));
+                    command.Parameters.AddWithValue("@CategoryId", int.Parse(categoryId));
 
                     // Execute o comando
                     int rowsAffected = command.ExecuteNonQuery();
@@ -127,8 +127,26 @@ namespace backendCsharp.Controllers {
             }
         }
 
-        private async void DeletarBlog(int id) {
+        private void DeletarBlog(int id) {
 
+            using (NpgsqlConnection  connection = new NpgsqlConnection(ObtendoConfig())) {
+                connection.Open();
+                string query = $"DELETE FROM blogs WHERE id = {id}";
+
+                // Crie um comando SQL com a query e a conexão
+                using (NpgsqlCommand command = new NpgsqlCommand(query, connection)) {
+
+                    // Execute o comando
+                    int rowsAffected = command.ExecuteNonQuery();
+
+                    // Verifique se alguma linha foi afetada (deve ser maior que 0)
+                    if (rowsAffected == 0) {
+                        throw new Exception("Blog não foi encontrado.");
+                    }
+                }
+
+                connection.Close();
+            }
 
         }
 
@@ -159,7 +177,7 @@ namespace backendCsharp.Controllers {
         }
 
         [HttpDelete("{id}")]
-        public ActionResult<List<MessageModel>> Delete(int id) {
+        public ActionResult<List<BlogsModel>> Delete(int id) {
             
             try {
 
