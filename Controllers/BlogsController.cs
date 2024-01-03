@@ -60,9 +60,9 @@ namespace backendCsharp.Controllers {
                     Subtitle = reader.GetString(reader.GetOrdinal("subtitle")),
                     ImageUrl = reader.GetString(reader.GetOrdinal("imageUrl")),
                     Content = reader.GetString(reader.GetOrdinal("content")),
-                    UserId = reader.GetInt32(reader.GetOrdinal("userId")),
+                    UserId = reader.GetString(reader.GetOrdinal("userId")),
                     UserName = reader.GetString(reader.GetOrdinal("userName")),
-                    CategoryId = reader.GetInt32(reader.GetOrdinal("categoryId")),
+                    CategoryId = reader.GetString(reader.GetOrdinal("categoryId")),
                     CategoryName = reader.GetString(reader.GetOrdinal("categoryName")),
                 };
                 blogs.Add(blog);
@@ -86,8 +86,8 @@ namespace backendCsharp.Controllers {
             string subtitle = dados.Subtitle;
             string imageUrl = dados.ImageUrl;
             string content = dados.Content;
-            int userId = dados.UserId;
-            int categoryId = dadosCategoryId;
+            string userId = dados.UserId;
+            string categoryId = dados.CategoryId;
 
             validator.existsOrError(date, @"Data não informada");
             validator.existsOrError(title, @"Informe o Título!");
