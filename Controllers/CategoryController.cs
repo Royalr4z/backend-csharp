@@ -67,10 +67,10 @@ namespace backendCsharp.Controllers {
 
             // Convertendo os Dados Obtidos para JSON
             string jsonString = System.Text.Json.JsonSerializer.Serialize(dadosObtidos);
-            CategoryModel dados = JsonConvert.DeserializeObject<CategoryModel>(jsonString);
+            CategoryModel? dados = JsonConvert.DeserializeObject<CategoryModel>(jsonString);
 
-            string nome = dados.Name;
-            string subtitle = dados.Subtitle;
+            string nome = dados?.Name ?? "";
+            string subtitle = dados?.Subtitle ?? "";
 
             validator.existsOrError(nome, @"Nome não informado");
             validator.existsOrError(subtitle, @"Informe a Descrição");

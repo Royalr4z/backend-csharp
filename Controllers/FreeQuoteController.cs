@@ -87,12 +87,12 @@ namespace backendCsharp.Controllers {
 
             // Convertendo os Dados Obtidos para JSON
             string jsonString = System.Text.Json.JsonSerializer.Serialize(dadosObtidos);
-            FreeQuoteModel dados = JsonConvert.DeserializeObject<FreeQuoteModel>(jsonString);
+            FreeQuoteModel? dados = JsonConvert.DeserializeObject<FreeQuoteModel>(jsonString);
 
-            string nome = dados.Name;
-            string email = dados.Email;
-            string service = dados.Service;
-            string message = dados.Message;
+            string nome = dados?.Name ?? "";
+            string email = dados?.Email ?? "";
+            string service = dados?.Service ?? "";
+            string message = dados?.Message ?? "";
 
             validator.existsOrError(nome, @"Nome não informado");
             validator.existsOrError(email, @"E-mail não informado");

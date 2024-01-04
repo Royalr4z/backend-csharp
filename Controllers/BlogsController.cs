@@ -79,15 +79,15 @@ namespace backendCsharp.Controllers {
 
             // Convertendo os Dados Obtidos para JSON
             string jsonString = System.Text.Json.JsonSerializer.Serialize(dadosObtidos);
-            BlogsModel dados = JsonConvert.DeserializeObject<BlogsModel>(jsonString);
+            BlogsModel? dados = JsonConvert.DeserializeObject<BlogsModel>(jsonString);
 
-            string date = dados.Date;
-            string title = dados.Title;
-            string subtitle = dados.Subtitle;
-            string imageUrl = dados.ImageUrl;
-            string content = dados.Content;
-            int userId = dados.UserId;
-            int categoryId = dados.CategoryId;
+            string date = dados?.Date ?? "";
+            string title = dados?.Title ?? "";
+            string subtitle = dados?.Subtitle ?? "";
+            string imageUrl = dados?.ImageUrl ?? "";
+            string content = dados?.Content ?? "";
+            int userId = dados?.UserId ?? 0;
+            int categoryId = dados?.CategoryId ?? 0;
 
             validator.existsOrError(date, @"Data não informada");
             validator.existsOrError(title, @"Informe o Título!");
