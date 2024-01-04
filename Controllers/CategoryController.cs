@@ -101,7 +101,7 @@ namespace backendCsharp.Controllers {
             }
         }
 
-        private async void DeletarCategoria(int id) {
+        private void DeletarCategoria(int id) {
 
             using (NpgsqlConnection  connection = new NpgsqlConnection(ObtendoConfig())) {
                 connection.Open();

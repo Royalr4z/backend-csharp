@@ -19,6 +19,8 @@ namespace backendCsharp.Models {
             Subtitle = string.Empty;
             ImageUrl = string.Empty;
             Content = string.Empty;
+            UserId = string.Empty;
+            CategoryId = string.Empty;
         }
 
 
