@@ -17,6 +17,13 @@ namespace backendCsharp.Controllers {
 
         }
 
+        public void existsIntOrError(int value, string msg) {
+    
+            if (value == 0) {
+                throw new Exception(msg);
+            }
+        }
+
         public void notExistsOrError(string value, string msg) {
             try {
                 existsOrError(value, msg);

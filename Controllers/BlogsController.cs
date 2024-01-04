@@ -86,15 +86,15 @@ namespace backendCsharp.Controllers {
             string subtitle = dados.Subtitle;
             string imageUrl = dados.ImageUrl;
             string content = dados.Content;
-            string userId = dados.UserId;
-            string categoryId = dados.CategoryId;
+            int userId = dados.UserId;
+            int categoryId = dados.CategoryId;
 
             validator.existsOrError(date, @"Data não informada");
             validator.existsOrError(title, @"Informe o Título!");
             validator.existsOrError(subtitle, @"Informe o Descrição!");
             validator.existsOrError(content, @"Coloque o Conteúdo!");
-            validator.existsOrError(userId, @"Informe o Usuário!");
-            validator.existsOrError(categoryId, @"Informe a Categoria!");
+            validator.existsIntOrError(userId, @"Informe o Usuário!");
+            validator.existsIntOrError(categoryId, @"Informe a Categoria!");
 
             using (NpgsqlConnection  connection = new NpgsqlConnection(ObtendoConfig())) {
                 connection.Open();
@@ -109,8 +109,8 @@ namespace backendCsharp.Controllers {
                     command.Parameters.AddWithValue("@Title", title);
                     command.Parameters.AddWithValue("@Subtitle", subtitle);
                     command.Parameters.AddWithValue("@Content", content);
-                    command.Parameters.AddWithValue("@UserId", int.Parse(userId));
-                    command.Parameters.AddWithValue("@CategoryId", int.Parse(categoryId));
+                    command.Parameters.AddWithValue("@UserId", userId);
+                    command.Parameters.AddWithValue("@CategoryId", categoryId);
 
                     // Execute o comando
                     int rowsAffected = command.ExecuteNonQuery();
