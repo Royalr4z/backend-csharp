@@ -8,10 +8,15 @@ namespace backendCsharp.Controllers {
 
     public class SignupController : ControllerBase {
     
-        [HttpGet]
-        public ActionResult<List<UserModel>> Get() {
+        [HttpPost]
+        public IActionResult Post([FromBody] dynamic dadosObtidos) {
 
-            return Ok("signup");
+            try {
+                return Ok("signup");
+
+            } catch (Exception ex) {
+                return BadRequest(ex.Message);
+            }
         }
     }
 
@@ -20,10 +25,16 @@ namespace backendCsharp.Controllers {
     
     public class SigninController : ControllerBase {
 
-        [HttpGet]
-        public ActionResult<List<UserModel>> Get() {
+        [HttpPost]
+        public IActionResult Post([FromBody] dynamic dadosObtidos) {
 
-            return Ok("signin");
+            try {
+                return Ok("signin");
+
+            } catch (Exception ex) {
+                return BadRequest(ex.Message);
+            }
+
         }
     }
 
@@ -32,10 +43,15 @@ namespace backendCsharp.Controllers {
     
     public class ValidateTokenController : ControllerBase {
     
-        [HttpGet]
-        public ActionResult<List<UserModel>> Get() {
+        [HttpPost]
+        public IActionResult Post([FromBody] dynamic dadosObtidos) {
 
-            return Ok("validadetoken");
+            try {
+                return Ok("validadetoken");
+
+            } catch (Exception ex) {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
