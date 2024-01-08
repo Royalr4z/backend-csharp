@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using backendCsharp.Models;
 using System;
 using Npgsql;
-using DotNetEnv;
 
 namespace backendCsharp.Controllers {
 
@@ -11,23 +10,11 @@ namespace backendCsharp.Controllers {
 
     public class UsersController : ControllerBase {
 
-        private string ObtendoConfig() {
-
-            Env.Load("./.env");
-
-            string dbHost = Environment.GetEnvironmentVariable("DATABASE_HOST") ?? "";
-            string dbUser = Environment.GetEnvironmentVariable("DATABASE_USER") ?? "";
-            string dbPassword = Environment.GetEnvironmentVariable("DATABASE_PASSWORD") ?? "";
-            string dbName = Environment.GetEnvironmentVariable("DATABASE_NAME") ?? "";
-
-            string connectionString = $"Host={dbHost};Username={dbUser};Password={dbPassword};Database={dbName}";
-        
-            return connectionString;
-        }
-
         public List<UserModel> ConsultarUsuarios(int? id) {
 
-            using var connection = new NpgsqlConnection(ObtendoConfig());
+            Validate validator = new Validate();
+
+            using var connection = new NpgsqlConnection(validator.ObtendoConfig());
             connection.Open();
 
             string sql = "";
@@ -60,7 +47,9 @@ namespace backendCsharp.Controllers {
 
         public void DeletarUsuario(int id) {
 
-            using (NpgsqlConnection  connection = new NpgsqlConnection(ObtendoConfig())) {
+            Validate validator = new Validate();
+
+            using (NpgsqlConnection  connection = new NpgsqlConnection(validator.ObtendoConfig())) {
                 connection.Open();
                 string query = $"""SELECT * FROM blogs WHERE "userId" = {id}""";
 
@@ -80,7 +69,7 @@ namespace backendCsharp.Controllers {
                 connection.Close();
             }
 
-            using (NpgsqlConnection  connection = new NpgsqlConnection(ObtendoConfig())) {
+            using (NpgsqlConnection  connection = new NpgsqlConnection(validator.ObtendoConfig())) {
                 connection.Open();
                 string query = $"DELETE FROM users WHERE id = {id}";
 

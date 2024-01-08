@@ -6,7 +6,6 @@ using TimeZoneConverter;
 using NodaTime;
 using System;
 using Npgsql;
-using DotNetEnv;
 
 namespace backendCsharp.Controllers {
 
@@ -15,23 +14,11 @@ namespace backendCsharp.Controllers {
 
     public class CategoryController : ControllerBase {
 
-        private string ObtendoConfig() {
-
-            Env.Load("./.env");
-
-            string dbHost = Environment.GetEnvironmentVariable("DATABASE_HOST") ?? "";
-            string dbUser = Environment.GetEnvironmentVariable("DATABASE_USER") ?? "";
-            string dbPassword = Environment.GetEnvironmentVariable("DATABASE_PASSWORD") ?? "";
-            string dbName = Environment.GetEnvironmentVariable("DATABASE_NAME") ?? "";
-
-            string connectionString = $"Host={dbHost};Username={dbUser};Password={dbPassword};Database={dbName}";
-        
-            return connectionString;
-        }
-
         public List<CategoryModel> ConsultarCategorias(int? id) {
 
-            using var connection = new NpgsqlConnection(ObtendoConfig());
+            Validate validator = new Validate();
+
+            using var connection = new NpgsqlConnection(validator.ObtendoConfig());
             connection.Open();
 
             string sql = "";
@@ -75,7 +62,7 @@ namespace backendCsharp.Controllers {
             validator.existsOrError(nome, @"Nome não informado");
             validator.existsOrError(subtitle, @"Informe a Descrição");
 
-            using (NpgsqlConnection  connection = new NpgsqlConnection(ObtendoConfig())) {
+            using (NpgsqlConnection  connection = new NpgsqlConnection(validator.ObtendoConfig())) {
                 connection.Open();
 
                 string query = "INSERT INTO category (name, subtitle ) VALUES (@Name, @Subtitle)";
@@ -103,7 +90,9 @@ namespace backendCsharp.Controllers {
 
         private void DeletarCategoria(int id) {
 
-            using (NpgsqlConnection  connection = new NpgsqlConnection(ObtendoConfig())) {
+            Validate validator = new Validate();
+
+            using (NpgsqlConnection  connection = new NpgsqlConnection(validator.ObtendoConfig())) {
                 connection.Open();
                 string query = $"""SELECT * FROM blogs WHERE "categoryId" = {id}""";
 
@@ -123,7 +112,7 @@ namespace backendCsharp.Controllers {
                 connection.Close();
             }
 
-            using (NpgsqlConnection  connection = new NpgsqlConnection(ObtendoConfig())) {
+            using (NpgsqlConnection  connection = new NpgsqlConnection(validator.ObtendoConfig())) {
                 connection.Open();
                 string query = $"DELETE FROM category WHERE id = {id}";
 

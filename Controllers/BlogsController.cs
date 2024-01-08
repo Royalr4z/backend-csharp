@@ -6,7 +6,6 @@ using TimeZoneConverter;
 using NodaTime;
 using System;
 using Npgsql;
-using DotNetEnv;
 
 namespace backendCsharp.Controllers {
 
@@ -15,23 +14,11 @@ namespace backendCsharp.Controllers {
 
     public class BlogsController : ControllerBase {
 
-        private string ObtendoConfig() {
-
-            Env.Load("./.env");
-
-            string dbHost = Environment.GetEnvironmentVariable("DATABASE_HOST") ?? "";
-            string dbUser = Environment.GetEnvironmentVariable("DATABASE_USER") ?? "";
-            string dbPassword = Environment.GetEnvironmentVariable("DATABASE_PASSWORD") ?? "";
-            string dbName = Environment.GetEnvironmentVariable("DATABASE_NAME") ?? "";
-
-            string connectionString = $"Host={dbHost};Username={dbUser};Password={dbPassword};Database={dbName}";
-        
-            return connectionString;
-        }
-
         public List<BlogsModel> ConsultarBlogs(int? id) {
 
-            using var connection = new NpgsqlConnection(ObtendoConfig());
+            Validate validator = new Validate();
+
+            using var connection = new NpgsqlConnection(validator.ObtendoConfig());
             connection.Open();
 
             string sql = "";
@@ -96,7 +83,7 @@ namespace backendCsharp.Controllers {
             validator.existsIntOrError(userId, @"Informe o Usuário!");
             validator.existsIntOrError(categoryId, @"Informe a Categoria!");
 
-            using (NpgsqlConnection  connection = new NpgsqlConnection(ObtendoConfig())) {
+            using (NpgsqlConnection  connection = new NpgsqlConnection(validator.ObtendoConfig())) {
                 connection.Open();
 
                 string query = $@"INSERT INTO blogs (date, title, subtitle, content, ""userId"", ""categoryId"")
@@ -129,7 +116,9 @@ namespace backendCsharp.Controllers {
 
         private void DeletarBlog(int id) {
 
-            using (NpgsqlConnection  connection = new NpgsqlConnection(ObtendoConfig())) {
+            Validate validator = new Validate();
+
+            using (NpgsqlConnection  connection = new NpgsqlConnection(validator.ObtendoConfig())) {
                 connection.Open();
                 string query = $"DELETE FROM blogs WHERE id = {id}";
 
