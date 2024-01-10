@@ -60,7 +60,7 @@ namespace backendCsharp.Controllers {
             return blogs;
         }
 
-        public void InserindoDados(dynamic dadosObtidos) {
+        public string InserindoDados(dynamic dadosObtidos) {
 
             Validate validator = new Validate();
 
@@ -102,15 +102,16 @@ namespace backendCsharp.Controllers {
                     // Execute o comando
                     int rowsAffected = command.ExecuteNonQuery();
 
+                    connection.Close();
+
                     // Verifique se alguma linha foi afetada (deve ser maior que 0)
                     if (rowsAffected > 0) {
-                        Console.WriteLine("Dados inseridos com sucesso!");
+                        return "Dados inseridos com sucesso!";
                     } else {
-                        Console.WriteLine("Falha ao inserir dados.");
+                        return "Falha ao inserir dados.";
                     }
                 }
 
-                connection.Close();
             }
         }
 
@@ -155,9 +156,7 @@ namespace backendCsharp.Controllers {
         public IActionResult Post([FromBody] dynamic dadosObtidos) {
 
             try {
-    
-                InserindoDados(dadosObtidos);
-                return Ok();
+                return Ok(InserindoDados(dadosObtidos));
 
             } catch (Exception ex) {
                 return BadRequest(ex.Message);

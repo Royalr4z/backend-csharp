@@ -68,7 +68,7 @@ namespace backendCsharp.Controllers {
             return FreeQuotes;
         }
 
-        public void InserindoDados(dynamic dadosObtidos) {
+        public string InserindoDados(dynamic dadosObtidos) {
 
             Validate validator = new Validate();
 
@@ -105,15 +105,16 @@ namespace backendCsharp.Controllers {
                     // Execute o comando
                     int rowsAffected = command.ExecuteNonQuery();
 
+                    connection.Close();
+
                     // Verifique se alguma linha foi afetada (deve ser maior que 0)
                     if (rowsAffected > 0) {
-                        Console.WriteLine("Dados inseridos com sucesso!");
+                        return "Dados inseridos com sucesso!";
                     } else {
-                        Console.WriteLine("Falha ao inserir dados.");
+                        return "Falha ao inserir dados.";
                     }
                 }
 
-                connection.Close();
             }
         }
 
@@ -133,10 +134,8 @@ namespace backendCsharp.Controllers {
                     int rowsAffected = command.ExecuteNonQuery();
 
                     // Verifique se alguma linha foi afetada (deve ser maior que 0)
-                    if (rowsAffected > 0) {
-                        Console.WriteLine("Dados deletados com sucesso!");
-                    } else {
-                        Console.WriteLine("Falha ao Deletar dados.");
+                    if (rowsAffected == 0) {
+                        throw new Exception("Falha ao Deletar dados.");
                     }
                 }
 
@@ -160,9 +159,7 @@ namespace backendCsharp.Controllers {
         public IActionResult Post([FromBody] dynamic dadosObtidos) {
 
             try {
-                InserindoDados(dadosObtidos);
-
-                return Ok();
+                return Ok(InserindoDados(dadosObtidos));
 
             } catch (Exception ex) {
                 return BadRequest(ex.Message);
@@ -173,9 +170,14 @@ namespace backendCsharp.Controllers {
         [HttpDelete("{id}")]
         public ActionResult<List<FreeQuoteModel>> Delete(int id) {
 
-            Deletar(id);
-            
-            return Ok();
+            try {
+                Deletar(id);
+                return Ok();
+
+            } catch (Exception ex) {
+                return BadRequest(ex.Message);
+            }
+
         }
 
     }
