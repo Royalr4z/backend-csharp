@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 using backendCsharp.Models;
 using Newtonsoft.Json;
@@ -37,6 +38,7 @@ namespace backendCsharp.Controllers {
             validator.existsOrError(nome, @"Nome não informado");
             validator.existsOrError(email, @"E-mail não informado");
             validator.existsOrError(password, @"Senha não informada");
+            if (password.Length < 8) throw new Exception("Senha muito curta");
             validator.existsOrError(confirmPassword, @"Confirme sua Senha");
 
             validator.equalsOrError(password, confirmPassword, @"Senhas não conferem");
