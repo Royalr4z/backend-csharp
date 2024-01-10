@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using backendCsharp.Models;
+using Newtonsoft.Json;
+using BCrypt;
+using Npgsql;
 
 namespace backendCsharp.Controllers {
 
@@ -8,7 +11,17 @@ namespace backendCsharp.Controllers {
 
     public class SignupController : ControllerBase {
 
-        public void InserindoUsuario(dynamic dadosObtidos) {
+        public string EncryptPassword(string password) {
+            // Gera o salt com custo (work factor) 10
+            string salt = BCrypt.Net.BCrypt.GenerateSalt(10);
+
+            // Gera o hash da senha usando o salt
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password, salt);
+
+            return hashedPassword;
+        }
+
+        public string InserindoUsuario(dynamic dadosObtidos) {
 
             Validate validator = new Validate();
 
@@ -29,6 +42,60 @@ namespace backendCsharp.Controllers {
             validator.equalsOrError(password, confirmPassword, @"Senhas não conferem");
 
             validator.ValidateEmail(email, @"E-mail Inválido!");
+
+            using (NpgsqlConnection  connection = new NpgsqlConnection(validator.ObtendoConfig())) {
+                connection.Open();
+
+                string sql = "SELECT * FROM users WHERE email = @Email LIMIT 1;";
+
+                using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection)) {
+                    cmd.Parameters.AddWithValue("@Email", email);
+
+                    var users = new List<UserModel>();
+
+                    using var reader = cmd.ExecuteReader();
+                    while (reader.Read()) {
+                        var user = new UserModel {
+                            Email = reader.GetString(reader.GetOrdinal("email")),
+                        };
+
+                        validator.notExistsOrError(user.Email, "Usuário já cadastrado");
+                        
+                        users.Add(user);
+                    }
+                }
+                connection.Close();
+            }
+
+            password = EncryptPassword(password);
+
+            using (NpgsqlConnection  connection = new NpgsqlConnection(validator.ObtendoConfig())) {
+                connection.Open();
+
+                string query = "INSERT INTO users (name, email, password, admin) VALUES (@Name, @Email, @Password, @Admin)";
+
+                // Crie um comando SQL com a query e a conexão
+                using (NpgsqlCommand command = new NpgsqlCommand(query, connection)) {
+
+                    command.Parameters.AddWithValue("@Name", nome);
+                    command.Parameters.AddWithValue("@Email", email);
+                    command.Parameters.AddWithValue("@Password", password);
+                    command.Parameters.AddWithValue("@Admin", false);
+
+                    // Execute o comando
+                    int rowsAffected = command.ExecuteNonQuery();
+
+                    connection.Close();
+
+                    // Verifique se alguma linha foi afetada (deve ser maior que 0)
+                    if (rowsAffected > 0) {
+                        return "Dados inseridos com sucesso!";
+                    } else {
+                        return "Falha ao inserir dados.";
+                    }
+                }
+
+            }
             
         }
     
@@ -36,8 +103,7 @@ namespace backendCsharp.Controllers {
         public IActionResult Post([FromBody] dynamic dadosObtidos) {
 
             try {
-                InserindoUsuario(dadosObtidos);
-                return Ok("signup");
+                return Ok(InserindoUsuario(dadosObtidos));
 
             } catch (Exception ex) {
                 return BadRequest(ex.Message);

@@ -48,7 +48,7 @@ namespace backendCsharp.Controllers {
             throw new Exception(msg);
         }
 
-        public void EqualsOrError(string valueA, string valueB, string msg) {
+        public void equalsOrError(string valueA, string valueB, string msg) {
             if (valueA != valueB) {
                 throw new Exception(msg);
             }
