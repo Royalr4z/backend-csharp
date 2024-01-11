@@ -1,7 +1,12 @@
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using backendCsharp.Models;
 using Newtonsoft.Json;
+using System.Text;
+using DotNetEnv;
 using BCrypt;
 using Npgsql;
 
@@ -118,11 +123,112 @@ namespace backendCsharp.Controllers {
     
     public class SigninController : ControllerBase {
 
+        public string authSecret() {
+
+            Env.Load("./.env");
+
+            string AUTH_SECRET = Environment.GetEnvironmentVariable("AUTH_SECRET") ?? "";
+        
+            return AUTH_SECRET;
+        }
+
+        public List<UserModel> Login(dynamic dadosObtidos) {
+
+            Validate validator = new Validate();
+
+            // Convertendo os Dados Obtidos para JSON
+            string jsonString = System.Text.Json.JsonSerializer.Serialize(dadosObtidos);
+            UserModel? dados = JsonConvert.DeserializeObject<UserModel>(jsonString);
+
+            string email = dados?.Email ?? "";
+            string password = dados?.Password ?? "";
+
+            validator.existsOrError(email, @"E-mail não informado");
+            validator.existsOrError(password, @"Senha não informada");
+
+            validator.ValidateEmail(email, @"E-mail Inválido!");
+
+            using (NpgsqlConnection  connection = new NpgsqlConnection(validator.ObtendoConfig())) {
+                connection.Open();
+
+                string sql = "SELECT * FROM users WHERE email = @Email LIMIT 1;";
+
+                using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection)) {
+                    cmd.Parameters.AddWithValue("@Email", email);
+
+                    var users = new List<UserModel>();
+
+                    // Obtém a representação do tempo atual em segundos desde a época de (1 de janeiro de 1970 00:00:00 UTC)
+                    long now = DateTimeOffset.Now.ToUnixTimeSeconds();
+
+                    using var reader = cmd.ExecuteReader();
+                    if (!reader.HasRows) throw new Exception("Usuário inexistente");
+
+                    while (reader.Read()) {
+                        var user = new UserModel {
+                            Id = reader.GetInt32(reader.GetOrdinal("id")),
+                            Name = reader.GetString(reader.GetOrdinal("name")),
+                            Email = reader.GetString(reader.GetOrdinal("email")),
+                            Password = reader.GetString(reader.GetOrdinal("password")),
+                            Admin = reader.GetBoolean(reader.GetOrdinal("admin")),
+                            iat = now,
+                            exp = now + (60 * 60 * 24 * 3)
+                        };
+
+                        // Comparando as senhas
+                        bool isMatch = BCrypt.Net.BCrypt.Verify(password, user.Password);
+                        if (!isMatch) throw new Exception("Senha incorreta");
+
+                        if (!user.Admin) throw new Exception("Acesso negado");
+
+                        // Remover a senha definindo-a como null
+                        user.Password = null;
+
+                        // Crie as claims para o token JWT
+                        var claims = new[] {
+                            new Claim("id", user.Id.ToString() ?? ""),
+                            new Claim("name", user.Name ?? ""),
+                            new Claim("email", user.Email ?? ""),
+                            new Claim("admin", user.Admin.ToString() ?? ""),
+                            new Claim("iat", user.iat.ToString() ?? ""),
+                            new Claim("exp", user.exp.ToString() ?? "")
+                        };
+
+                        // Crie a chave secreta para assinar o token
+                        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authSecret()));
+
+                        // Crie as credenciais do token
+                        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+                        // Crie o token JWT
+                        var token = new JwtSecurityToken(
+                            claims: claims,
+                            expires: DateTime.UtcNow.Add(TimeSpan.FromSeconds((double)(user.exp ?? 0))),
+                            signingCredentials: creds
+                        );
+
+                        // Obtenha a representação do token como uma string
+                        var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+
+                        user.Token = tokenString;
+
+                        users.Add(user);
+
+                    }
+
+                    connection.Close();
+
+                    return users;
+                }
+            }
+        }
+
+
         [HttpPost]
         public IActionResult Post([FromBody] dynamic dadosObtidos) {
 
             try {
-                return Ok("signin");
+                return Ok(Login(dadosObtidos));
 
             } catch (Exception ex) {
                 return BadRequest(ex.Message);
