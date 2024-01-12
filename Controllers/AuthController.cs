@@ -242,11 +242,62 @@ namespace backendCsharp.Controllers {
     
     public class ValidateTokenController : ControllerBase {
     
+        public string authSecret() {
+
+            Env.Load("./.env");
+
+            string AUTH_SECRET = Environment.GetEnvironmentVariable("AUTH_SECRET") ?? "";
+        
+            return AUTH_SECRET;
+        }
+
+
+        public bool Validate(dynamic dadosObtidos) {
+
+            // Convertendo os Dados Obtidos para JSON
+            string jsonString = System.Text.Json.JsonSerializer.Serialize(dadosObtidos);
+            UserModel? dados = JsonConvert.DeserializeObject<UserModel>(jsonString);
+
+            Validate validator = new Validate();
+
+            string token = dados?.Token ?? "";
+            long exp = dados?.exp ?? 0;
+            long now = DateTimeOffset.Now.ToUnixTimeSeconds();
+
+            validator.existsOrError(token, @"Token não informado");
+            validator.existsIntOrError((int)exp, @"Exp não informado");
+
+            if (exp < now)  return false; // Método Temporário
+
+            try {
+
+                var tokenValidationParameters = new TokenValidationParameters {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(authSecret()))
+                };
+
+                // Decodificar e validar o token JWT
+                var tokenHandler = new JwtSecurityTokenHandler();
+                SecurityToken securityToken;
+
+                var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out securityToken);
+
+                return true; // o token é válido
+    
+            } catch {
+
+                return false; // o token é inválido
+            }
+        }
+    
         [HttpPost]
         public IActionResult Post([FromBody] dynamic dadosObtidos) {
 
             try {
-                return Ok("validadetoken");
+                return Ok(Validate(dadosObtidos));
 
             } catch (Exception ex) {
                 return BadRequest(ex.Message);
