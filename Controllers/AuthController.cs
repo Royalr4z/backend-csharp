@@ -261,13 +261,8 @@ namespace backendCsharp.Controllers {
             Validate validator = new Validate();
 
             string token = dados?.Token ?? "";
-            long exp = dados?.exp ?? 0;
-            long now = DateTimeOffset.Now.ToUnixTimeSeconds();
 
             validator.existsOrError(token, @"Token não informado");
-            validator.existsIntOrError((int)exp, @"Exp não informado");
-
-            if (exp < now)  return false; // Método Temporário
 
             try {
 
@@ -284,6 +279,17 @@ namespace backendCsharp.Controllers {
                 SecurityToken securityToken;
 
                 var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out securityToken);
+
+                // Verificar se o token expirou
+                if (securityToken is JwtSecurityToken jwtSecurityToken) {
+                    var expirationDate = jwtSecurityToken.ValidTo;
+                    var currentDate = DateTime.UtcNow;
+
+                    if (expirationDate < currentDate) {
+                        // Token expirou
+                        return false;
+                    }
+                }
 
                 return true; // o token é válido
     
