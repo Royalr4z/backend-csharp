@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using backendCsharp.Models;
+using backendCsharp.Config;
 using System;
 using Npgsql;
 
@@ -12,9 +13,9 @@ namespace backendCsharp.Controllers {
 
         public List<UserModel> ConsultarUsuarios(int? id) {
 
-            Validate validator = new Validate();
+            environment env = new environment();
 
-            using var connection = new NpgsqlConnection(validator.ObtendoConfig());
+            using var connection = new NpgsqlConnection(env.ObtendoConfig());
             connection.Open();
 
             string sql = "";
@@ -47,9 +48,9 @@ namespace backendCsharp.Controllers {
 
         public void DeletarUsuario(int id) {
 
-            Validate validator = new Validate();
+            environment env = new environment();
 
-            using (NpgsqlConnection  connection = new NpgsqlConnection(validator.ObtendoConfig())) {
+            using (NpgsqlConnection  connection = new NpgsqlConnection(env.ObtendoConfig())) {
                 connection.Open();
                 string query = $"""SELECT * FROM blogs WHERE "userId" = {id}""";
 
@@ -69,7 +70,7 @@ namespace backendCsharp.Controllers {
                 connection.Close();
             }
 
-            using (NpgsqlConnection  connection = new NpgsqlConnection(validator.ObtendoConfig())) {
+            using (NpgsqlConnection  connection = new NpgsqlConnection(env.ObtendoConfig())) {
                 connection.Open();
                 string query = $"DELETE FROM users WHERE id = {id}";
 

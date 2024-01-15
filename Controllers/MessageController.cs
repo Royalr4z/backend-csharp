@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using backendCsharp.Models;
+using backendCsharp.Config;
 using Newtonsoft.Json;
 using System.Data.SqlClient;
 using TimeZoneConverter;
@@ -32,9 +33,9 @@ namespace backendCsharp.Controllers {
 
         public List<MessageModel> ConsultarMessagens(int? id) {
 
-            Validate validator = new Validate();
+            environment env = new environment();
 
-            using var connection = new NpgsqlConnection(validator.ObtendoConfig());
+            using var connection = new NpgsqlConnection(env.ObtendoConfig());
             connection.Open();
 
             string sql = "";
@@ -71,6 +72,7 @@ namespace backendCsharp.Controllers {
         public string InserindoDados(dynamic dadosObtidos) {
 
             Validate validator = new Validate();
+            environment env = new environment();
 
             // Convertendo os Dados Obtidos para JSON
             string jsonString = System.Text.Json.JsonSerializer.Serialize(dadosObtidos);
@@ -88,7 +90,7 @@ namespace backendCsharp.Controllers {
 
             validator.ValidateEmail(email, @"E-mail Inválido!");
 
-            using (NpgsqlConnection  connection = new NpgsqlConnection(validator.ObtendoConfig())) {
+            using (NpgsqlConnection  connection = new NpgsqlConnection(env.ObtendoConfig())) {
                 connection.Open();
 
                 string query = "INSERT INTO message (date, name, email, subject, content) VALUES (@Date, @Name, @Email, @Subject, @Content)";
@@ -120,9 +122,9 @@ namespace backendCsharp.Controllers {
 
         public void DeletarMessagem(int id) {
 
-            Validate validator = new Validate();
+            environment env = new environment();
 
-            using (NpgsqlConnection  connection = new NpgsqlConnection(validator.ObtendoConfig())) {
+            using (NpgsqlConnection  connection = new NpgsqlConnection(env.ObtendoConfig())) {
                 connection.Open();
 
                 string query = $"DELETE FROM message WHERE id = {id}";

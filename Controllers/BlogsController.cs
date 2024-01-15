@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using backendCsharp.Models;
+using backendCsharp.Config;
 using Newtonsoft.Json;
 using System.Data.SqlClient;
 using TimeZoneConverter;
@@ -16,9 +17,9 @@ namespace backendCsharp.Controllers {
 
         public List<BlogsModel> ConsultarBlogs(int? id) {
 
-            Validate validator = new Validate();
+            environment env = new environment();
 
-            using var connection = new NpgsqlConnection(validator.ObtendoConfig());
+            using var connection = new NpgsqlConnection(env.ObtendoConfig());
             connection.Open();
 
             string sql = "";
@@ -63,6 +64,7 @@ namespace backendCsharp.Controllers {
         public string InserindoDados(dynamic dadosObtidos) {
 
             Validate validator = new Validate();
+            environment env = new environment();
 
             // Convertendo os Dados Obtidos para JSON
             string jsonString = System.Text.Json.JsonSerializer.Serialize(dadosObtidos);
@@ -83,7 +85,7 @@ namespace backendCsharp.Controllers {
             validator.existsIntOrError(userId, @"Informe o Usuário!");
             validator.existsIntOrError(categoryId, @"Informe a Categoria!");
 
-            using (NpgsqlConnection  connection = new NpgsqlConnection(validator.ObtendoConfig())) {
+            using (NpgsqlConnection  connection = new NpgsqlConnection(env.ObtendoConfig())) {
                 connection.Open();
 
                 string query = $@"INSERT INTO blogs (date, title, subtitle, content, ""userId"", ""categoryId"")
@@ -117,9 +119,9 @@ namespace backendCsharp.Controllers {
 
         private void DeletarBlog(int id) {
 
-            Validate validator = new Validate();
+            environment env = new environment();
 
-            using (NpgsqlConnection  connection = new NpgsqlConnection(validator.ObtendoConfig())) {
+            using (NpgsqlConnection  connection = new NpgsqlConnection(env.ObtendoConfig())) {
                 connection.Open();
                 string query = $"DELETE FROM blogs WHERE id = {id}";
 

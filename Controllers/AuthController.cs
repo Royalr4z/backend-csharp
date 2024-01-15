@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using backendCsharp.Models;
+using backendCsharp.Config;
 using Newtonsoft.Json;
 using System.Text;
 using DotNetEnv;
@@ -30,6 +31,7 @@ namespace backendCsharp.Controllers {
         public string InserindoUsuario(dynamic dadosObtidos) {
 
             Validate validator = new Validate();
+            environment env = new environment();
 
             // Convertendo os Dados Obtidos para JSON
             string jsonString = System.Text.Json.JsonSerializer.Serialize(dadosObtidos);
@@ -50,7 +52,7 @@ namespace backendCsharp.Controllers {
 
             validator.ValidateEmail(email, @"E-mail Inválido!");
 
-            using (NpgsqlConnection  connection = new NpgsqlConnection(validator.ObtendoConfig())) {
+            using (NpgsqlConnection  connection = new NpgsqlConnection(env.ObtendoConfig())) {
                 connection.Open();
 
                 string sql = "SELECT * FROM users WHERE email = @Email LIMIT 1;";
@@ -76,7 +78,7 @@ namespace backendCsharp.Controllers {
 
             password = EncryptPassword(password);
 
-            using (NpgsqlConnection  connection = new NpgsqlConnection(validator.ObtendoConfig())) {
+            using (NpgsqlConnection  connection = new NpgsqlConnection(env.ObtendoConfig())) {
                 connection.Open();
 
                 string query = "INSERT INTO users (name, email, password, admin) VALUES (@Name, @Email, @Password, @Admin)";
@@ -135,6 +137,7 @@ namespace backendCsharp.Controllers {
         public List<UserModel> Login(dynamic dadosObtidos) {
 
             Validate validator = new Validate();
+            environment env = new environment();
 
             // Convertendo os Dados Obtidos para JSON
             string jsonString = System.Text.Json.JsonSerializer.Serialize(dadosObtidos);
@@ -148,7 +151,7 @@ namespace backendCsharp.Controllers {
 
             validator.ValidateEmail(email, @"E-mail Inválido!");
 
-            using (NpgsqlConnection  connection = new NpgsqlConnection(validator.ObtendoConfig())) {
+            using (NpgsqlConnection  connection = new NpgsqlConnection(env.ObtendoConfig())) {
                 connection.Open();
 
                 string sql = "SELECT * FROM users WHERE email = @Email LIMIT 1;";
