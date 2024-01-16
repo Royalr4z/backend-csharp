@@ -244,18 +244,12 @@ namespace backendCsharp.Controllers {
     [ApiController]
     
     public class ValidateTokenController : ControllerBase {
-    
-        public string authSecret() {
+
+        public bool ValidatingToken(dynamic dadosObtidos) {
 
             Env.Load("./.env");
 
             string AUTH_SECRET = Environment.GetEnvironmentVariable("AUTH_SECRET") ?? "";
-        
-            return AUTH_SECRET;
-        }
-
-
-        public bool Validate(dynamic dadosObtidos) {
 
             // Convertendo os Dados Obtidos para JSON
             string jsonString = System.Text.Json.JsonSerializer.Serialize(dadosObtidos);
@@ -274,7 +268,7 @@ namespace backendCsharp.Controllers {
                     ValidateAudience = false,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(authSecret()))
+                    IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(AUTH_SECRET))
                 };
 
                 // Decodificar e validar o token JWT
@@ -306,7 +300,7 @@ namespace backendCsharp.Controllers {
         public IActionResult Post([FromBody] dynamic dadosObtidos) {
 
             try {
-                return Ok(Validate(dadosObtidos));
+                return Ok(ValidatingToken(dadosObtidos));
 
             } catch (Exception ex) {
                 return BadRequest(ex.Message);
