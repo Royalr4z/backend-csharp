@@ -1,4 +1,8 @@
 using System.Text.RegularExpressions;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using DotNetEnv;
 
 namespace backendCsharp.Config {
 
@@ -48,5 +52,47 @@ namespace backendCsharp.Config {
                 throw new Exception(msg);
             }
         }
+
+        public bool ValidatingToken(string token) {
+
+            Env.Load("./.env");
+
+            string AUTH_SECRET = Environment.GetEnvironmentVariable("AUTH_SECRET") ?? "";
+
+            try {
+
+                var tokenValidationParameters = new TokenValidationParameters {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(AUTH_SECRET))
+                };
+
+                // Decodificar e validar o token JWT
+                var tokenHandler = new JwtSecurityTokenHandler();
+                SecurityToken securityToken;
+
+                var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out securityToken);
+
+                // Verificar se o token expirou
+                if (securityToken is JwtSecurityToken jwtSecurityToken) {
+                    var expirationDate = jwtSecurityToken.ValidTo;
+                    var currentDate = DateTime.UtcNow;
+
+                    if (expirationDate < currentDate) {
+                        // Token expirou
+                        return false;
+                    }
+                }
+
+                return true; // o token é válido
+    
+            } catch {
+
+                return false; // o token é inválido
+            }
+        }
+
     }
 }

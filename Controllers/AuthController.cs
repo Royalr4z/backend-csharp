@@ -244,63 +244,22 @@ namespace backendCsharp.Controllers {
     [ApiController]
     
     public class ValidateTokenController : ControllerBase {
-
-        public bool ValidatingToken(dynamic dadosObtidos) {
-
-            Env.Load("./.env");
-
-            string AUTH_SECRET = Environment.GetEnvironmentVariable("AUTH_SECRET") ?? "";
-
-            // Convertendo os Dados Obtidos para JSON
-            string jsonString = System.Text.Json.JsonSerializer.Serialize(dadosObtidos);
-            UserModel? dados = JsonConvert.DeserializeObject<UserModel>(jsonString);
-
-            Validate validator = new Validate();
-
-            string token = dados?.Token ?? "";
-
-            validator.existsOrError(token, @"Token não informado");
-
-            try {
-
-                var tokenValidationParameters = new TokenValidationParameters {
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(AUTH_SECRET))
-                };
-
-                // Decodificar e validar o token JWT
-                var tokenHandler = new JwtSecurityTokenHandler();
-                SecurityToken securityToken;
-
-                var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out securityToken);
-
-                // Verificar se o token expirou
-                if (securityToken is JwtSecurityToken jwtSecurityToken) {
-                    var expirationDate = jwtSecurityToken.ValidTo;
-                    var currentDate = DateTime.UtcNow;
-
-                    if (expirationDate < currentDate) {
-                        // Token expirou
-                        return false;
-                    }
-                }
-
-                return true; // o token é válido
-    
-            } catch {
-
-                return false; // o token é inválido
-            }
-        }
     
         [HttpPost]
-        public IActionResult Post([FromBody] dynamic dadosObtidos) {
+        public IActionResult Post([FromBody] dynamic dadosObtidos) { 
 
             try {
-                return Ok(ValidatingToken(dadosObtidos));
+                // Convertendo os Dados Obtidos para JSON
+                string jsonString = System.Text.Json.JsonSerializer.Serialize(dadosObtidos);
+                UserModel? dados = JsonConvert.DeserializeObject<UserModel>(jsonString);
+
+                Validate validator = new Validate();
+
+                string token = dados?.Token ?? "";
+
+                validator.existsOrError(token, @"Token não informado");
+
+                return Ok(validator.ValidatingToken(token));
 
             } catch (Exception ex) {
                 return BadRequest(ex.Message);
