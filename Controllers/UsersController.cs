@@ -13,7 +13,7 @@ namespace backendCsharp.Controllers {
 
         public List<UserModel> ConsultarUsuarios(int? id) {
 
-            environment env = new environment();
+            Enviro env = new Enviro();
 
             using var connection = new NpgsqlConnection(env.ObtendoConfig());
             connection.Open();
@@ -48,7 +48,7 @@ namespace backendCsharp.Controllers {
 
         public void DeletarUsuario(int id) {
 
-            environment env = new environment();
+            Enviro env = new Enviro();
 
             using (NpgsqlConnection  connection = new NpgsqlConnection(env.ObtendoConfig())) {
                 connection.Open();
@@ -95,20 +95,20 @@ namespace backendCsharp.Controllers {
         public ActionResult<List<UserModel>> Get() {
 
             // Obter o cabeçalho "Authorization" da solicitação
-            string authorizationHeader = HttpContext.Request.Headers["Authorization"];
+            string? authorizationHeader = HttpContext.Request.Headers?["Authorization"];
 
             string token = "";
 
             try {
                 // Remover o prefixo "Bearer " para obter apenas o token
-                token = authorizationHeader.Substring("Bearer ".Length).Trim();
+                token = authorizationHeader?.Substring("Bearer ".Length).Trim() ?? "";
             } catch {
-                token = authorizationHeader; 
+                token = authorizationHeader ?? ""; 
             }
 
             Validate validator = new Validate();
 
-            if (validator.ValidatingToken(token, true)) {
+            if (validator.ValidatingToken(token ?? "", true)) {
 
                 return Ok(ConsultarUsuarios(0));
             } else {
@@ -128,22 +128,22 @@ namespace backendCsharp.Controllers {
         public ActionResult<List<MessageModel>> Delete(int id) {
 
             // Obter o cabeçalho "Authorization" da solicitação
-            string authorizationHeader = HttpContext.Request.Headers["Authorization"];
+            string? authorizationHeader = HttpContext.Request.Headers["Authorization"];
 
             string token = "";
 
             try {
                 // Remover o prefixo "Bearer " para obter apenas o token
-                token = authorizationHeader.Substring("Bearer ".Length).Trim();
+                token = authorizationHeader?.Substring("Bearer ".Length).Trim() ?? "";
             } catch {
-                token = authorizationHeader; 
+                token = authorizationHeader ?? ""; 
             }
 
             Validate validator = new Validate();
 
             try {
 
-                if (validator.ValidatingToken(token, true)) {
+                if (validator.ValidatingToken(token ?? "", true)) {
 
                     DeletarUsuario(id);
                     return Ok();

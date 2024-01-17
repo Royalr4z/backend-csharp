@@ -17,7 +17,7 @@ namespace backendCsharp.Controllers {
 
         public List<BlogsModel> ConsultarBlogs(int? id) {
 
-            environment env = new environment();
+            Enviro env = new Enviro();
 
             using var connection = new NpgsqlConnection(env.ObtendoConfig());
             connection.Open();
@@ -64,7 +64,7 @@ namespace backendCsharp.Controllers {
         public string InserindoDados(dynamic dadosObtidos) {
 
             Validate validator = new Validate();
-            environment env = new environment();
+            Enviro env = new Enviro();
 
             // Convertendo os Dados Obtidos para JSON
             string jsonString = System.Text.Json.JsonSerializer.Serialize(dadosObtidos);
@@ -119,7 +119,7 @@ namespace backendCsharp.Controllers {
 
         private void DeletarBlog(int id) {
 
-            environment env = new environment();
+            Enviro env = new Enviro();
 
             using (NpgsqlConnection  connection = new NpgsqlConnection(env.ObtendoConfig())) {
                 connection.Open();

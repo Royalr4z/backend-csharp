@@ -2,7 +2,7 @@ using DotNetEnv;
 
 namespace backendCsharp.Config {
 
-    public class environment {
+    public class Enviro {
 
         public string ObtendoConfig() {
 

@@ -33,7 +33,7 @@ namespace backendCsharp.Controllers {
 
         public List<FreeQuoteModel> ConsultarDados(int? id) {
 
-            environment env = new environment();
+            Enviro env = new Enviro();
 
             using var connection = new NpgsqlConnection(env.ObtendoConfig());
             connection.Open();
@@ -72,7 +72,7 @@ namespace backendCsharp.Controllers {
         public string InserindoDados(dynamic dadosObtidos) {
 
             Validate validator = new Validate();
-            environment env = new environment();
+            Enviro env = new Enviro();
 
             // Convertendo os Dados Obtidos para JSON
             string jsonString = System.Text.Json.JsonSerializer.Serialize(dadosObtidos);
@@ -122,7 +122,7 @@ namespace backendCsharp.Controllers {
 
         public void Deletar(int id) {
 
-            environment env = new environment();
+            Enviro env = new Enviro();
 
             using (NpgsqlConnection  connection = new NpgsqlConnection(env.ObtendoConfig())) {
                 connection.Open();

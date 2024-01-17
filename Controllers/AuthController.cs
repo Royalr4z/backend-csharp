@@ -31,7 +31,7 @@ namespace backendCsharp.Controllers {
         public string InserindoUsuario(dynamic dadosObtidos) {
 
             Validate validator = new Validate();
-            environment env = new environment();
+            Enviro env = new Enviro();
 
             // Convertendo os Dados Obtidos para JSON
             string jsonString = System.Text.Json.JsonSerializer.Serialize(dadosObtidos);
@@ -137,7 +137,7 @@ namespace backendCsharp.Controllers {
         public List<UserModel> Login(dynamic dadosObtidos) {
 
             Validate validator = new Validate();
-            environment env = new environment();
+            Enviro env = new Enviro();
 
             // Convertendo os Dados Obtidos para JSON
             string jsonString = System.Text.Json.JsonSerializer.Serialize(dadosObtidos);

@@ -90,7 +90,7 @@ namespace backendCsharp.Config {
                     
                     // Acessar dados do payload
                     var identity = principal.Identity as ClaimsIdentity;
-                    var admin = bool.Parse(identity?.FindFirst("admin")?.Value);
+                    var admin = bool.Parse(identity?.FindFirst("admin")?.Value ?? "false");
 
                     if (admin) {
                         return true;
