@@ -259,7 +259,7 @@ namespace backendCsharp.Controllers {
 
                 validator.existsOrError(token, @"Token não informado");
 
-                return Ok(validator.ValidatingToken(token));
+                return Ok(validator.ValidatingToken(token, false));
 
             } catch (Exception ex) {
                 return BadRequest(ex.Message);

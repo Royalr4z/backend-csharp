@@ -53,7 +53,7 @@ namespace backendCsharp.Config {
             }
         }
 
-        public bool ValidatingToken(string token) {
+        public bool ValidatingToken(string token, bool verifyAdmin = false) {
 
             Env.Load("./.env");
 
@@ -86,7 +86,22 @@ namespace backendCsharp.Config {
                     }
                 }
 
-                return true; // o token é válido
+                if (verifyAdmin) {
+                    
+                    // Acessar dados do payload
+                    var identity = principal.Identity as ClaimsIdentity;
+                    var admin = bool.Parse(identity?.FindFirst("admin")?.Value);
+
+                    if (admin) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+
+                } else {
+
+                    return true; // o token é válido
+                }
     
             } catch {
 
