@@ -157,8 +157,29 @@ namespace backendCsharp.Controllers {
         [HttpPost]
         public IActionResult Post([FromBody] dynamic dadosObtidos) {
 
+            // Obter o cabeçalho "Authorization" da solicitação
+            string? authorizationHeader = HttpContext.Request.Headers["Authorization"];
+
+            string token = "";
+
             try {
-                return Ok(InserindoDados(dadosObtidos));
+                // Remover o prefixo "Bearer " para obter apenas o token
+                token = authorizationHeader?.Substring("Bearer ".Length).Trim() ?? "";
+            } catch {
+                token = authorizationHeader ?? ""; 
+            }
+
+            Validate validator = new Validate();
+
+            try {
+
+                if (validator.ValidatingToken(token ?? "", true)) {
+
+                    return Ok(InserindoDados(dadosObtidos));
+                } else {
+
+                    return Ok("Unauthorized");
+                }
 
             } catch (Exception ex) {
                 return BadRequest(ex.Message);
@@ -169,10 +190,30 @@ namespace backendCsharp.Controllers {
         [HttpDelete("{id}")]
         public ActionResult<List<BlogsModel>> Delete(int id) {
             
+            // Obter o cabeçalho "Authorization" da solicitação
+            string? authorizationHeader = HttpContext.Request.Headers["Authorization"];
+
+            string token = "";
+
+            try {
+                // Remover o prefixo "Bearer " para obter apenas o token
+                token = authorizationHeader?.Substring("Bearer ".Length).Trim() ?? "";
+            } catch {
+                token = authorizationHeader ?? ""; 
+            }
+
+            Validate validator = new Validate();
+
             try {
 
-                DeletarBlog(id);
-                return Ok();
+                if (validator.ValidatingToken(token ?? "", true)) {
+
+                    DeletarBlog(id);
+                    return Ok();
+                } else {
+
+                    return Ok("Unauthorized");
+                }
 
             } catch (Exception ex) {
                 return BadRequest(ex.Message);

@@ -32,12 +32,21 @@ namespace backendCsharp.Controllers {
 
             using var reader = cmd.ExecuteReader();
             while (reader.Read()) {
-                var user = new UserModel {
-                    Id = reader.GetInt32(reader.GetOrdinal("id")),
-                    Name = reader.GetString(reader.GetOrdinal("name")),
-                    Email = reader.GetString(reader.GetOrdinal("email")),
-                    Admin = reader.GetBoolean(reader.GetOrdinal("admin"))
-                };
+                var user = new UserModel();
+
+                if (id == 0) {
+                    user = new UserModel {
+                        Id = reader.GetInt32(reader.GetOrdinal("id")),
+                        Name = reader.GetString(reader.GetOrdinal("name")),
+                        Email = reader.GetString(reader.GetOrdinal("email")),
+                        Admin = reader.GetBoolean(reader.GetOrdinal("admin"))
+                    };
+                } else {
+                    user = new UserModel {
+                        Id = reader.GetInt32(reader.GetOrdinal("id")),
+                        Name = reader.GetString(reader.GetOrdinal("name"))
+                    };
+                }
                 users.Add(user);
             }
 

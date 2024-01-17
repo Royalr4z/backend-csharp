@@ -148,13 +148,53 @@ namespace backendCsharp.Controllers {
         [HttpGet]
         public ActionResult<List<FreeQuoteModel>> Get() {
 
-            return Ok(ConsultarDados(0));
+            // Obter o cabeçalho "Authorization" da solicitação
+            string? authorizationHeader = HttpContext.Request.Headers["Authorization"];
+
+            string token = "";
+
+            try {
+                // Remover o prefixo "Bearer " para obter apenas o token
+                token = authorizationHeader?.Substring("Bearer ".Length).Trim() ?? "";
+            } catch {
+                token = authorizationHeader ?? ""; 
+            }
+
+            Validate validator = new Validate();
+
+            if (validator.ValidatingToken(token ?? "", true)) {
+
+                return Ok(ConsultarDados(0));
+            } else {
+
+                return Ok("Unauthorized");
+            }
         }
 
         [HttpGet("{id}")]
         public ActionResult<List<FreeQuoteModel>> GetById(int id) {
 
-            return Ok(ConsultarDados(id));
+            // Obter o cabeçalho "Authorization" da solicitação
+            string? authorizationHeader = HttpContext.Request.Headers["Authorization"];
+
+            string token = "";
+
+            try {
+                // Remover o prefixo "Bearer " para obter apenas o token
+                token = authorizationHeader?.Substring("Bearer ".Length).Trim() ?? "";
+            } catch {
+                token = authorizationHeader ?? ""; 
+            }
+
+            Validate validator = new Validate();
+
+            if (validator.ValidatingToken(token ?? "", true)) {
+
+                return Ok(ConsultarDados(id));
+            } else {
+
+                return Ok("Unauthorized");
+            }
         }
 
         [HttpPost]
@@ -172,9 +212,30 @@ namespace backendCsharp.Controllers {
         [HttpDelete("{id}")]
         public ActionResult<List<FreeQuoteModel>> Delete(int id) {
 
+            // Obter o cabeçalho "Authorization" da solicitação
+            string? authorizationHeader = HttpContext.Request.Headers["Authorization"];
+
+            string token = "";
+
             try {
-                Deletar(id);
-                return Ok();
+                // Remover o prefixo "Bearer " para obter apenas o token
+                token = authorizationHeader?.Substring("Bearer ".Length).Trim() ?? "";
+            } catch {
+                token = authorizationHeader ?? ""; 
+            }
+
+            Validate validator = new Validate();
+
+            try {
+
+                if (validator.ValidatingToken(token ?? "", true)) {
+
+                    Deletar(id);
+                    return Ok();
+                } else {
+
+                    return Ok("Unauthorized");
+                }
 
             } catch (Exception ex) {
                 return BadRequest(ex.Message);
