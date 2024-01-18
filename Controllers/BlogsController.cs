@@ -15,27 +15,69 @@ namespace backendCsharp.Controllers {
 
     public class BlogsController : ControllerBase {
 
-        public List<BlogsModel> ConsultarBlogs(int? id) {
+        public List<BlogsModel> ConsultarBlogsById(int id) {
+
+            Enviro env = new Enviro();
+
+            using var connection = new NpgsqlConnection(env.ObtendoConfig());
+            connection.Open();
+            
+            string sql = $@"SELECT blogs.*, users.name AS userName, category.name AS categoryName
+                FROM blogs INNER JOIN users ON blogs.""userId"" = users.id
+                INNER JOIN category ON blogs.""categoryId"" = category.id
+                WHERE blogs.id = {id};";
+
+            using var cmd = new NpgsqlCommand(sql, connection);
+            
+            var blogs = new List<BlogsModel>();
+
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read()) {
+                var blog = new BlogsModel {
+                    Id = reader.GetInt32(reader.GetOrdinal("id")),
+                    Date = reader.GetString(reader.GetOrdinal("date")),
+                    Title = reader.GetString(reader.GetOrdinal("title")),
+                    Subtitle = reader.GetString(reader.GetOrdinal("subtitle")),
+                    ImageUrl = reader.IsDBNull(reader.GetOrdinal("imageUrl")) ? "" : reader.GetString(reader.GetOrdinal("imageUrl")),
+                    Content = reader.GetString(reader.GetOrdinal("content")),
+                    UserId = reader.GetInt32(reader.GetOrdinal("userId")),
+                    UserName = reader.GetString(reader.GetOrdinal("userName")),
+                    CategoryId = reader.GetInt32(reader.GetOrdinal("categoryId")),
+                    CategoryName = reader.GetString(reader.GetOrdinal("categoryName")),
+                };
+                blogs.Add(blog);
+            }
+
+            return blogs;
+        }
+
+        public ResponseModel ConsultarBlogs() {
+
+            // Acessando os parâmetros da consulta
+            int page, limit;
+
+            int.TryParse(HttpContext.Request.Query["page"], out page);
+            int.TryParse(HttpContext.Request.Query["limit"], out limit);
+
+            // Definindo valores padrão se a conversão falhar
+            page = Math.Max(page, 1);
+            limit = Math.Max(limit, 1000);
+
+            int offset = (page - 1) * limit;
 
             Enviro env = new Enviro();
 
             using var connection = new NpgsqlConnection(env.ObtendoConfig());
             connection.Open();
 
-            string sql = "";
-
-            if (id > 0) {
-                sql = $@"SELECT blogs.*, users.name AS userName, category.name AS categoryName
+            string sql = $@"SELECT blogs.*, users.name AS userName, category.name AS categoryName
                 FROM blogs INNER JOIN users ON blogs.""userId"" = users.id
                 INNER JOIN category ON blogs.""categoryId"" = category.id
-                WHERE blogs.id = {id};";
-            } else {
-                sql = $@"SELECT blogs.*, users.name AS userName, category.name AS categoryName
-                FROM blogs INNER JOIN users ON blogs.""userId"" = users.id
-                INNER JOIN category ON blogs.""categoryId"" = category.id;";
-            }
+                OFFSET @Offset LIMIT @Limit;";
 
             using var cmd = new NpgsqlCommand(sql, connection);
+            cmd.Parameters.AddWithValue("@Offset", offset);
+            cmd.Parameters.AddWithValue("@Limit", limit);
 
             var blogs = new List<BlogsModel>();
 
@@ -58,7 +100,36 @@ namespace backendCsharp.Controllers {
 
             connection.Close();
 
-            return blogs;
+            static int GetTotalBlogCount(string connectionString) {
+                using (NpgsqlConnection connection = new NpgsqlConnection(connectionString)){
+
+                    connection.Open();
+
+                    string query = "SELECT COUNT(*) FROM blogs;";
+                    using (NpgsqlCommand command = new NpgsqlCommand(query, connection)) {
+
+                        object countResult = command.ExecuteScalar();
+
+                        int totalCount = countResult != null ? Convert.ToInt32(countResult) : 0;
+                        return totalCount;
+                    }
+                }
+            }
+
+            connection.Close();
+
+            int totalCount = GetTotalBlogCount(env.ObtendoConfig());
+
+            var pagination = new PaginationModel {
+                Page = page,
+                Limit = limit,
+                TotalCount = totalCount,
+                TotalPages = (int)Math.Ceiling((double)totalCount / limit),
+            };
+
+            var response = new ResponseModel(blogs, pagination);
+
+            return response;
         }
 
         public string InserindoDados(dynamic dadosObtidos) {
@@ -143,15 +214,15 @@ namespace backendCsharp.Controllers {
         }
 
         [HttpGet]
-        public ActionResult<List<BlogsModel>> Get() {
+        public ActionResult<List<ResponseModel>> Get() {
 
-            return Ok(ConsultarBlogs(0));
+            return Ok(ConsultarBlogs());
         }
 
         [HttpGet("{id}")]
-        public ActionResult<List<BlogsModel>> GetById(int id) {
+        public ActionResult<List<ResponseModel>> GetById(int id) {
 
-            return Ok(ConsultarBlogs(id));
+            return Ok(ConsultarBlogsById(id));
         }
 
         [HttpPost]
