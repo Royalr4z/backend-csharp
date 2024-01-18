@@ -61,7 +61,7 @@ namespace backendCsharp.Controllers {
 
             // Definindo valores padrão se a conversão falhar
             page = Math.Max(page, 1);
-            limit = Math.Max(limit, 1000);
+            limit = Math.Min(limit, 1000);
 
             int offset = (page - 1) * limit;
 
