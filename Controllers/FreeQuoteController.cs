@@ -43,7 +43,7 @@ namespace backendCsharp.Controllers {
             if (id > 0) {
                 sql = $"SELECT * FROM free_quote WHERE id = {id}";
             } else {
-                sql = "SELECT * FROM free_quote";
+                sql = "SELECT * FROM free_quote ORDER BY id ASC;";
             }
 
             using var cmd = new NpgsqlCommand(sql, connection);

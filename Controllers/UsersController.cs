@@ -23,7 +23,7 @@ namespace backendCsharp.Controllers {
             if (id > 0) {
                 sql = $"SELECT * FROM users WHERE id = {id}";
             } else {
-                sql = "SELECT * FROM users";
+                sql = "SELECT * FROM users ORDER BY id ASC;";
             }
 
             using var cmd = new NpgsqlCommand(sql, connection);
