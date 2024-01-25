@@ -11,12 +11,12 @@ namespace backendCsharp.Models {
 
     public class ResponseModel {
 
-        public dynamic Blogs { get; set; }
+        public dynamic Blog { get; set; }
         public dynamic Pagination { get; set; }
 
-        public ResponseModel(dynamic blogs, dynamic pagination) {
+        public ResponseModel(dynamic blog, dynamic pagination) {
 
-            Blogs = blogs;
+            Blog = blog;
             Pagination = pagination;
         }
     }

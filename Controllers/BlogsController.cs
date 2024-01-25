@@ -15,7 +15,7 @@ namespace backendCsharp.Controllers {
 
     public class BlogsController : ControllerBase {
 
-        public List<BlogsModel> ConsultarBlogsById(int id) {
+        public BlogsModel ConsultarBlogsById(int id) {
 
             Enviro env = new Enviro();
 
@@ -28,12 +28,23 @@ namespace backendCsharp.Controllers {
                 WHERE blogs.id = {id};";
 
             using var cmd = new NpgsqlCommand(sql, connection);
-            
-            var blogs = new List<BlogsModel>();
+
+            var blog = new BlogsModel {
+                    Id = 0,
+                    Date = "",
+                    Title = "",
+                    Subtitle = "",
+                    ImageUrl = "",
+                    Content = "",
+                    UserId = 0,
+                    UserName = "",
+                    CategoryId = 0,
+                    CategoryName = "",
+            };
 
             using var reader = cmd.ExecuteReader();
             while (reader.Read()) {
-                var blog = new BlogsModel {
+                blog = new BlogsModel {
                     Id = reader.GetInt32(reader.GetOrdinal("id")),
                     Date = reader.GetString(reader.GetOrdinal("date")),
                     Title = reader.GetString(reader.GetOrdinal("title")),
@@ -45,10 +56,9 @@ namespace backendCsharp.Controllers {
                     CategoryId = reader.GetInt32(reader.GetOrdinal("categoryId")),
                     CategoryName = reader.GetString(reader.GetOrdinal("categoryName")),
                 };
-                blogs.Add(blog);
             }
 
-            return blogs;
+            return blog;
         }
 
         public ResponseModel ConsultarBlogs() {
@@ -324,15 +334,13 @@ namespace backendCsharp.Controllers {
             sql = $@"SELECT blogs.*, users.name AS userName, category.name AS categoryName
                     FROM blogs
                     INNER JOIN users ON blogs.""userId"" = users.id
-                    INNER JOIN category ON blogs.""categoryId"" = category.id
-                    ORDER BY blogs.id ASC;";
+                    INNER JOIN category ON blogs.""categoryId"" = category.id";
 
             if (!string.IsNullOrEmpty(category)) {
-                sql += " WHERE category.name = @Category";
+                sql += $" WHERE category.name = @Category";
             }
 
-            sql += " OFFSET @Offset LIMIT @Limit;";
-
+            sql += " ORDER BY blogs.id ASC OFFSET @Offset LIMIT @Limit;";
 
             using var cmd = new NpgsqlCommand(sql, connection);
             cmd.Parameters.AddWithValue("@Offset", offset);
