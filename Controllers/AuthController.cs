@@ -18,17 +18,17 @@ namespace backendCsharp.Controllers {
 
     public class SignupController : ControllerBase {
 
-        public string EncryptPassword(string password) {
-            // Gera o salt com custo (work factor) 10
-            string salt = BCrypt.Net.BCrypt.GenerateSalt(10);
+        public IActionResult InserindoUsuario(dynamic dadosObtidos) {
 
-            // Gera o hash da senha usando o salt
-            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password, salt);
+            static string EncryptPassword(string password) {
+                // Gera o salt com custo (work factor) 10
+                string salt = BCrypt.Net.BCrypt.GenerateSalt(10);
 
-            return hashedPassword;
-        }
+                // Gera o hash da senha usando o salt
+                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password, salt);
 
-        public string InserindoUsuario(dynamic dadosObtidos) {
+                return hashedPassword;
+            }
 
             Validate validator = new Validate();
             Enviro env = new Enviro();
@@ -98,9 +98,9 @@ namespace backendCsharp.Controllers {
 
                     // Verifique se alguma linha foi afetada (deve ser maior que 0)
                     if (rowsAffected > 0) {
-                        return "Dados inseridos com sucesso!";
+                        return null;
                     } else {
-                        return "Falha ao inserir dados.";
+                        return StatusCode(500, "Falha ao inserir dados.");
                     }
                 }
 
@@ -125,16 +125,11 @@ namespace backendCsharp.Controllers {
     
     public class SigninController : ControllerBase {
 
-        public string authSecret() {
+        public UserModel Login(dynamic dadosObtidos) {
 
             Env.Load("./.env");
 
             string AUTH_SECRET = Environment.GetEnvironmentVariable("AUTH_SECRET") ?? "";
-        
-            return AUTH_SECRET;
-        }
-
-        public List<UserModel> Login(dynamic dadosObtidos) {
 
             Validate validator = new Validate();
             Enviro env = new Enviro();
@@ -159,7 +154,15 @@ namespace backendCsharp.Controllers {
                 using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection)) {
                     cmd.Parameters.AddWithValue("@Email", email);
 
-                    var users = new List<UserModel>();
+                    var user = new UserModel {
+                        Id = 0,
+                        Name = "",
+                        Email = "",
+                        Password = "",
+                        Admin = false,
+                        iat = 0,
+                        exp = 0
+                    };
 
                     // Obtém a representação do tempo atual em segundos desde a época de (1 de janeiro de 1970 00:00:00 UTC)
                     long now = DateTimeOffset.Now.ToUnixTimeSeconds();
@@ -168,7 +171,7 @@ namespace backendCsharp.Controllers {
                     if (!reader.HasRows) throw new Exception("Usuário inexistente");
 
                     while (reader.Read()) {
-                        var user = new UserModel {
+                        user = new UserModel {
                             Id = reader.GetInt32(reader.GetOrdinal("id")),
                             Name = reader.GetString(reader.GetOrdinal("name")),
                             Email = reader.GetString(reader.GetOrdinal("email")),
@@ -198,7 +201,7 @@ namespace backendCsharp.Controllers {
                         };
 
                         // Crie a chave secreta para assinar o token
-                        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authSecret()));
+                        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(AUTH_SECRET));
 
                         // Crie as credenciais do token
                         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -215,13 +218,11 @@ namespace backendCsharp.Controllers {
 
                         user.Token = tokenString;
 
-                        users.Add(user);
-
                     }
 
                     connection.Close();
 
-                    return users;
+                    return user;
                 }
             }
         }
