@@ -17,8 +17,19 @@ namespace backendCsharp.Controllers {
     [ApiController]
 
     public class SignupController : ControllerBase {
+    
+        [HttpPost]
+        public IActionResult Post([FromBody] dynamic dadosObtidos) {
 
-        public IActionResult InserindoUsuario(dynamic dadosObtidos) {
+            try {
+                return Ok(InserindoUsuario(dadosObtidos));
+
+            } catch (Exception ex) {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        private IActionResult InserindoUsuario(dynamic dadosObtidos) {
 
             static string EncryptPassword(string password) {
                 // Gera o salt com custo (work factor) 10
@@ -103,19 +114,6 @@ namespace backendCsharp.Controllers {
                         return StatusCode(500, "Falha ao inserir dados.");
                     }
                 }
-
-            }
-            
-        }
-    
-        [HttpPost]
-        public IActionResult Post([FromBody] dynamic dadosObtidos) {
-
-            try {
-                return Ok(InserindoUsuario(dadosObtidos));
-
-            } catch (Exception ex) {
-                return BadRequest(ex.Message);
             }
         }
     }
@@ -125,7 +123,18 @@ namespace backendCsharp.Controllers {
     
     public class SigninController : ControllerBase {
 
-        public UserModel Login(dynamic dadosObtidos) {
+        [HttpPost]
+        public IActionResult Post([FromBody] dynamic dadosObtidos) {
+
+            try {
+                return Ok(Login(dadosObtidos));
+
+            } catch (Exception ex) {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        private UserModel Login(dynamic dadosObtidos) {
 
             Env.Load("./.env");
 
@@ -225,19 +234,6 @@ namespace backendCsharp.Controllers {
                     return user;
                 }
             }
-        }
-
-
-        [HttpPost]
-        public IActionResult Post([FromBody] dynamic dadosObtidos) {
-
-            try {
-                return Ok(Login(dadosObtidos));
-
-            } catch (Exception ex) {
-                return BadRequest(ex.Message);
-            }
-
         }
     }
 

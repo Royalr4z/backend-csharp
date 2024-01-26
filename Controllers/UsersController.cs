@@ -11,95 +11,6 @@ namespace backendCsharp.Controllers {
 
     public class UsersController : ControllerBase {
 
-        public List<UserModel> ConsultarUsuarios(int? id) {
-
-            Enviro env = new Enviro();
-
-            using var connection = new NpgsqlConnection(env.ObtendoConfig());
-            connection.Open();
-
-            string sql = "";
-
-            if (id > 0) {
-                sql = $"SELECT * FROM users WHERE id = {id}";
-            } else {
-                sql = "SELECT * FROM users ORDER BY id ASC;";
-            }
-
-            using var cmd = new NpgsqlCommand(sql, connection);
-
-            var users = new List<UserModel>();
-
-            using var reader = cmd.ExecuteReader();
-            while (reader.Read()) {
-                var user = new UserModel();
-
-                if (id == 0) {
-                    user = new UserModel {
-                        Id = reader.GetInt32(reader.GetOrdinal("id")),
-                        Name = reader.GetString(reader.GetOrdinal("name")),
-                        Email = reader.GetString(reader.GetOrdinal("email")),
-                        Admin = reader.GetBoolean(reader.GetOrdinal("admin"))
-                    };
-                } else {
-                    user = new UserModel {
-                        Id = reader.GetInt32(reader.GetOrdinal("id")),
-                        Name = reader.GetString(reader.GetOrdinal("name"))
-                    };
-                }
-                users.Add(user);
-            }
-
-            connection.Close();
-
-            return users;
-        }
-
-        public void DeletarUsuario(int id) {
-
-            Enviro env = new Enviro();
-
-            using (NpgsqlConnection  connection = new NpgsqlConnection(env.ObtendoConfig())) {
-                connection.Open();
-                string query = $"""SELECT * FROM blogs WHERE "userId" = {id}""";
-
-                // Crie um comando SQL com a query e a conexão
-                using (NpgsqlCommand command = new NpgsqlCommand(query, connection)) {
-
-                    // Execute o comando
-                    int rowsAffected = command.ExecuteNonQuery();
-                    using var reader = command.ExecuteReader();
-
-                    // Verifique se alguma linha foi afetada (deve ser maior que 0)
-                    if (reader.Read()) {
-                        throw new Exception("Usuário possui Blogs.");
-                    }
-                }
-
-                connection.Close();
-            }
-
-            using (NpgsqlConnection  connection = new NpgsqlConnection(env.ObtendoConfig())) {
-                connection.Open();
-                string query = $"DELETE FROM users WHERE id = {id}";
-
-                // Crie um comando SQL com a query e a conexão
-                using (NpgsqlCommand command = new NpgsqlCommand(query, connection)) {
-
-                    // Execute o comando
-                    int rowsAffected = command.ExecuteNonQuery();
-
-                    // Verifique se alguma linha foi afetada (deve ser maior que 0)
-                    if (rowsAffected == 0) {
-                        throw new Exception("Usuário não foi encontrado.");
-                    }
-                }
-
-                connection.Close();
-            }
-
-        }
-
         [HttpGet]
         public ActionResult<List<UserModel>> Get() {
 
@@ -163,6 +74,94 @@ namespace backendCsharp.Controllers {
 
             } catch (Exception ex) {
                 return BadRequest(ex.Message);
+            }
+        }
+
+        private List<UserModel> ConsultarUsuarios(int? id) {
+
+            Enviro env = new Enviro();
+
+            using var connection = new NpgsqlConnection(env.ObtendoConfig());
+            connection.Open();
+
+            string sql = "";
+
+            if (id > 0) {
+                sql = $"SELECT * FROM users WHERE id = {id}";
+            } else {
+                sql = "SELECT * FROM users ORDER BY id ASC;";
+            }
+
+            using var cmd = new NpgsqlCommand(sql, connection);
+
+            var users = new List<UserModel>();
+
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read()) {
+                var user = new UserModel();
+
+                if (id == 0) {
+                    user = new UserModel {
+                        Id = reader.GetInt32(reader.GetOrdinal("id")),
+                        Name = reader.GetString(reader.GetOrdinal("name")),
+                        Email = reader.GetString(reader.GetOrdinal("email")),
+                        Admin = reader.GetBoolean(reader.GetOrdinal("admin"))
+                    };
+                } else {
+                    user = new UserModel {
+                        Id = reader.GetInt32(reader.GetOrdinal("id")),
+                        Name = reader.GetString(reader.GetOrdinal("name"))
+                    };
+                }
+                users.Add(user);
+            }
+
+            connection.Close();
+
+            return users;
+        }
+
+        private void DeletarUsuario(int id) {
+
+            Enviro env = new Enviro();
+
+            using (NpgsqlConnection  connection = new NpgsqlConnection(env.ObtendoConfig())) {
+                connection.Open();
+                string query = $"""SELECT * FROM blogs WHERE "userId" = {id}""";
+
+                // Crie um comando SQL com a query e a conexão
+                using (NpgsqlCommand command = new NpgsqlCommand(query, connection)) {
+
+                    // Execute o comando
+                    int rowsAffected = command.ExecuteNonQuery();
+                    using var reader = command.ExecuteReader();
+
+                    // Verifique se alguma linha foi afetada (deve ser maior que 0)
+                    if (reader.Read()) {
+                        throw new Exception("Usuário possui Blogs.");
+                    }
+                }
+
+                connection.Close();
+            }
+
+            using (NpgsqlConnection  connection = new NpgsqlConnection(env.ObtendoConfig())) {
+                connection.Open();
+                string query = $"DELETE FROM users WHERE id = {id}";
+
+                // Crie um comando SQL com a query e a conexão
+                using (NpgsqlCommand command = new NpgsqlCommand(query, connection)) {
+
+                    // Execute o comando
+                    int rowsAffected = command.ExecuteNonQuery();
+
+                    // Verifique se alguma linha foi afetada (deve ser maior que 0)
+                    if (rowsAffected == 0) {
+                        throw new Exception("Usuário não foi encontrado.");
+                    }
+                }
+
+                connection.Close();
             }
         }
     }
