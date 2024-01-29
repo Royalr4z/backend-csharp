@@ -250,8 +250,8 @@ namespace backendCsharp.Controllers {
             using (NpgsqlConnection  connection = new NpgsqlConnection(env.ObtendoConfig())) {
                 connection.Open();
 
-                string query = $@"INSERT INTO blogs (date, title, subtitle, content, ""userId"", ""categoryId"")
-                                 VALUES (@Date, @Title, @Subtitle, @Content, @UserId, @CategoryId)";
+                string query = $@"INSERT INTO blogs (date, title, subtitle, ""imageUrl"", content, ""userId"", ""categoryId"")
+                                 VALUES (@Date, @Title, @Subtitle, @ImageUrl, @Content, @UserId, @CategoryId)";
 
                 // Crie um comando SQL com a query e a conexão
                 using (NpgsqlCommand command = new NpgsqlCommand(query, connection)) {
@@ -259,6 +259,7 @@ namespace backendCsharp.Controllers {
                     command.Parameters.AddWithValue("@Date", date);
                     command.Parameters.AddWithValue("@Title", title);
                     command.Parameters.AddWithValue("@Subtitle", subtitle);
+                    command.Parameters.AddWithValue("@ImageUrl", imageUrl);
                     command.Parameters.AddWithValue("@Content", content);
                     command.Parameters.AddWithValue("@UserId", userId);
                     command.Parameters.AddWithValue("@CategoryId", categoryId);
