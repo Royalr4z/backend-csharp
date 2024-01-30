@@ -102,8 +102,8 @@ namespace backendCsharp.Controllers {
             connection.Open();
             
             string sql = $@"SELECT blogs.*, users.name AS userName, category.name AS categoryName
-                FROM blogs INNER JOIN users ON blogs.""userId"" = users.id
-                INNER JOIN category ON blogs.""categoryId"" = category.id
+                FROM blogs INNER JOIN users ON blogs.userid = users.id
+                INNER JOIN category ON blogs.categoryid = category.id
                 WHERE blogs.id = {id};";
 
             using var cmd = new NpgsqlCommand(sql, connection);
@@ -128,11 +128,11 @@ namespace backendCsharp.Controllers {
                     Date = reader.GetString(reader.GetOrdinal("date")),
                     Title = reader.GetString(reader.GetOrdinal("title")),
                     Subtitle = reader.GetString(reader.GetOrdinal("subtitle")),
-                    ImageUrl = reader.IsDBNull(reader.GetOrdinal("imageUrl")) ? "" : reader.GetString(reader.GetOrdinal("imageUrl")),
+                    ImageUrl = reader.IsDBNull(reader.GetOrdinal("imageurl")) ? "" : reader.GetString(reader.GetOrdinal("imageurl")),
                     Content = reader.GetString(reader.GetOrdinal("content")),
-                    UserId = reader.GetInt32(reader.GetOrdinal("userId")),
+                    UserId = reader.GetInt32(reader.GetOrdinal("userid")),
                     UserName = reader.GetString(reader.GetOrdinal("userName")),
-                    CategoryId = reader.GetInt32(reader.GetOrdinal("categoryId")),
+                    CategoryId = reader.GetInt32(reader.GetOrdinal("categoryid")),
                     CategoryName = reader.GetString(reader.GetOrdinal("categoryName")),
                 };
             }
@@ -160,8 +160,8 @@ namespace backendCsharp.Controllers {
             connection.Open();
 
             string sql = $@"SELECT blogs.*, users.name AS userName, category.name AS categoryName
-                FROM blogs INNER JOIN users ON blogs.""userId"" = users.id
-                INNER JOIN category ON blogs.""categoryId"" = category.id
+                FROM blogs INNER JOIN users ON blogs.userid = users.id
+                INNER JOIN category ON blogs.categoryid = category.id
                 ORDER BY blogs.id ASC
                 OFFSET @Offset LIMIT @Limit;";
 
@@ -178,11 +178,11 @@ namespace backendCsharp.Controllers {
                     Date = reader.GetString(reader.GetOrdinal("date")),
                     Title = reader.GetString(reader.GetOrdinal("title")),
                     Subtitle = reader.GetString(reader.GetOrdinal("subtitle")),
-                    ImageUrl = reader.IsDBNull(reader.GetOrdinal("imageUrl")) ? null : reader.GetString(reader.GetOrdinal("imageUrl")),
+                    ImageUrl = reader.IsDBNull(reader.GetOrdinal("imageurl")) ? "" : reader.GetString(reader.GetOrdinal("imageurl")),
                     Content = reader.GetString(reader.GetOrdinal("content")),
-                    UserId = reader.GetInt32(reader.GetOrdinal("userId")),
+                    UserId = reader.GetInt32(reader.GetOrdinal("userid")),
                     UserName = reader.GetString(reader.GetOrdinal("userName")),
-                    CategoryId = reader.GetInt32(reader.GetOrdinal("categoryId")),
+                    CategoryId = reader.GetInt32(reader.GetOrdinal("categoryid")),
                     CategoryName = reader.GetString(reader.GetOrdinal("categoryName")),
                 };
                 blogs.Add(blog);
@@ -250,7 +250,7 @@ namespace backendCsharp.Controllers {
             using (NpgsqlConnection  connection = new NpgsqlConnection(env.ObtendoConfig())) {
                 connection.Open();
 
-                string query = $@"INSERT INTO blogs (date, title, subtitle, ""imageUrl"", content, ""userId"", ""categoryId"")
+                string query = $@"INSERT INTO blogs (date, title, subtitle, imageurl, content, userid, categoryid)
                                  VALUES (@Date, @Title, @Subtitle, @ImageUrl, @Content, @UserId, @CategoryId)";
 
                 // Crie um comando SQL com a query e a conexão
@@ -334,8 +334,8 @@ namespace backendCsharp.Controllers {
             
             sql = $@"SELECT blogs.*, users.name AS userName, category.name AS categoryName
                     FROM blogs
-                    INNER JOIN users ON blogs.""userId"" = users.id
-                    INNER JOIN category ON blogs.""categoryId"" = category.id";
+                    INNER JOIN users ON blogs.userid = users.id
+                    INNER JOIN category ON blogs.categoryid = category.id";
 
             if (!string.IsNullOrEmpty(category)) {
                 sql += $" WHERE category.name = @Category";
@@ -360,11 +360,11 @@ namespace backendCsharp.Controllers {
                     Date = reader.GetString(reader.GetOrdinal("date")),
                     Title = reader.GetString(reader.GetOrdinal("title")),
                     Subtitle = reader.GetString(reader.GetOrdinal("subtitle")),
-                    ImageUrl = reader.IsDBNull(reader.GetOrdinal("imageUrl")) ? "" : reader.GetString(reader.GetOrdinal("imageUrl")),
+                    ImageUrl = reader.IsDBNull(reader.GetOrdinal("imageurl")) ? "" : reader.GetString(reader.GetOrdinal("imageurl")),
                     Content = reader.GetString(reader.GetOrdinal("content")),
-                    UserId = reader.GetInt32(reader.GetOrdinal("userId")),
+                    UserId = reader.GetInt32(reader.GetOrdinal("userid")),
                     UserName = reader.GetString(reader.GetOrdinal("userName")),
-                    CategoryId = reader.GetInt32(reader.GetOrdinal("categoryId")),
+                    CategoryId = reader.GetInt32(reader.GetOrdinal("categoryid")),
                     CategoryName = reader.GetString(reader.GetOrdinal("categoryName")),
                 };
                 blogs.Add(blog);
@@ -429,8 +429,8 @@ namespace backendCsharp.Controllers {
             
             sql = $@"SELECT blogs.*, users.name AS userName, category.name AS categoryName
                     FROM blogs
-                    INNER JOIN users ON blogs.""userId"" = users.id
-                    INNER JOIN category ON blogs.""categoryId"" = category.id
+                    INNER JOIN users ON blogs.userid = users.id
+                    INNER JOIN category ON blogs.categoryid = category.id
                     ORDER BY blogs.id DESC
                     OFFSET @Offset LIMIT @Limit;";
 
@@ -447,11 +447,11 @@ namespace backendCsharp.Controllers {
                     Date = reader.GetString(reader.GetOrdinal("date")),
                     Title = reader.GetString(reader.GetOrdinal("title")),
                     Subtitle = reader.GetString(reader.GetOrdinal("subtitle")),
-                    ImageUrl = reader.IsDBNull(reader.GetOrdinal("imageUrl")) ? "" : reader.GetString(reader.GetOrdinal("imageUrl")),
+                    ImageUrl = reader.IsDBNull(reader.GetOrdinal("imageurl")) ? "" : reader.GetString(reader.GetOrdinal("imageurl")),
                     Content = reader.GetString(reader.GetOrdinal("content")),
-                    UserId = reader.GetInt32(reader.GetOrdinal("userId")),
+                    UserId = reader.GetInt32(reader.GetOrdinal("userid")),
                     UserName = reader.GetString(reader.GetOrdinal("userName")),
-                    CategoryId = reader.GetInt32(reader.GetOrdinal("categoryId")),
+                    CategoryId = reader.GetInt32(reader.GetOrdinal("categoryid")),
                     CategoryName = reader.GetString(reader.GetOrdinal("categoryName")),
                 };
                 blogs.Add(blog);

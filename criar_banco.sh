@@ -35,10 +35,10 @@ CREATE_BLOGS="""
         date VARCHAR NOT NULL,
         title VARCHAR NOT NULL,
         subtitle VARCHAR NOT NULL,
-        imageUrl VARCHAR(2083),
+        imageurl VARCHAR(2083),
         content TEXT NOT NULL,
-        userId INTEGER REFERENCES users(id) NOT NULL,
-        categoryId INTEGER REFERENCES category(id) NOT NULL
+        userid INTEGER REFERENCES users(id) NOT NULL,
+        categoryid INTEGER REFERENCES category(id) NOT NULL
     );
 """
 
