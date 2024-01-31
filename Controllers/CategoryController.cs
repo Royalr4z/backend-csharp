@@ -210,7 +210,7 @@ namespace backendCsharp.Controllers {
 
             using (NpgsqlConnection  connection = new NpgsqlConnection(env.ObtendoConfig())) {
                 connection.Open();
-                string query = $"""SELECT * FROM blogs WHERE "categoryId" = {id}""";
+                string query = $"""SELECT * FROM blogs WHERE categoryid = {id}""";
 
                 // Crie um comando SQL com a query e a conexão
                 using (NpgsqlCommand command = new NpgsqlCommand(query, connection)) {
