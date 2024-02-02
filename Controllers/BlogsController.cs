@@ -198,7 +198,7 @@ namespace backendCsharp.Controllers {
                     string query = "SELECT COUNT(*) FROM blogs;";
                     using (NpgsqlCommand command = new NpgsqlCommand(query, connection)) {
 
-                        object countResult = command.ExecuteScalar();
+                        object? countResult = command.ExecuteScalar();
 
                         int totalCount = countResult != null ? Convert.ToInt32(countResult) : 0;
                         return totalCount;
@@ -314,10 +314,10 @@ namespace backendCsharp.Controllers {
         public ActionResult<List<ResponseModel>> Get() {
             // Acessando os parâmetros da consulta
             int page, limit;
-            string category = HttpContext.Request?.Query["category"] ?? "";
+            string? category = HttpContext.Request?.Query["category"] ?? "";
 
-            int.TryParse(HttpContext.Request.Query["page"], out page);
-            int.TryParse(HttpContext.Request.Query["limit"], out limit);
+            int.TryParse(HttpContext?.Request?.Query?["page"], out page);
+            int.TryParse(HttpContext?.Request?.Query?["limit"], out limit);
 
             // Definindo valores padrão se a conversão falhar
             page = Math.Max(page, 1);
@@ -380,7 +380,7 @@ namespace backendCsharp.Controllers {
                     string query = "SELECT COUNT(*) FROM blogs;";
                     using (NpgsqlCommand command = new NpgsqlCommand(query, connection)) {
 
-                        object countResult = command.ExecuteScalar();
+                        object? countResult = command.ExecuteScalar();
 
                         int totalCount = countResult != null ? Convert.ToInt32(countResult) : 0;
                         return totalCount;
@@ -467,7 +467,7 @@ namespace backendCsharp.Controllers {
                     string query = "SELECT COUNT(*) FROM blogs;";
                     using (NpgsqlCommand command = new NpgsqlCommand(query, connection)) {
 
-                        object countResult = command.ExecuteScalar();
+                        object? countResult = command.ExecuteScalar();
 
                         int totalCount = countResult != null ? Convert.ToInt32(countResult) : 0;
                         return totalCount;
