@@ -136,9 +136,9 @@ namespace backendCsharp.Controllers {
             string sql = "";
 
             if (id > 0) {
-                sql = $"SELECT * FROM category WHERE id = {id}";
+                sql = $"SELECT id, name, subtitle FROM category WHERE id = {id}";
             } else {
-                sql = "SELECT * FROM category ORDER BY id ASC;";
+                sql = "SELECT id, name, subtitle FROM category ORDER BY id ASC;";
             }
 
             using var cmd = new NpgsqlCommand(sql, connection);
@@ -210,7 +210,7 @@ namespace backendCsharp.Controllers {
 
             using (NpgsqlConnection  connection = new NpgsqlConnection(env.ObtendoConfig())) {
                 connection.Open();
-                string query = $"""SELECT * FROM blogs WHERE categoryid = {id}""";
+                string query = $"SELECT id, name, subtitle FROM blogs WHERE categoryid = {id}";
 
                 // Crie um comando SQL com a query e a conexão
                 using (NpgsqlCommand command = new NpgsqlCommand(query, connection)) {

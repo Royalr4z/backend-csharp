@@ -66,7 +66,7 @@ namespace backendCsharp.Controllers {
             using (NpgsqlConnection  connection = new NpgsqlConnection(env.ObtendoConfig())) {
                 connection.Open();
 
-                string sql = "SELECT * FROM users WHERE email = @Email LIMIT 1;";
+                string sql = "SELECT email FROM users WHERE email = @Email LIMIT 1;";
 
                 using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection)) {
                     cmd.Parameters.AddWithValue("@Email", email);
@@ -158,7 +158,7 @@ namespace backendCsharp.Controllers {
             using (NpgsqlConnection  connection = new NpgsqlConnection(env.ObtendoConfig())) {
                 connection.Open();
 
-                string sql = "SELECT * FROM users WHERE email = @Email LIMIT 1;";
+                string sql = "SELECT id, name, email, password, admin FROM users WHERE email = @Email LIMIT 1;";
 
                 using (NpgsqlCommand cmd = new NpgsqlCommand(sql, connection)) {
                     cmd.Parameters.AddWithValue("@Email", email);

@@ -139,9 +139,9 @@ namespace backendCsharp.Controllers {
             string sql = "";
 
             if (id > 0) {
-                sql = $"SELECT * FROM free_quote WHERE id = {id}";
+                sql = $"SELECT id, date, name, email, service, message FROM free_quote WHERE id = {id}";
             } else {
-                sql = "SELECT * FROM free_quote ORDER BY id ASC;";
+                sql = "SELECT id, date, name, email, service, message FROM free_quote ORDER BY id ASC;";
             }
 
             using var cmd = new NpgsqlCommand(sql, connection);
