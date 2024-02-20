@@ -22,7 +22,7 @@ A seguir estão as principais rotas e APIs fornecidas pelo backend.
 - **Método HTTP:** [GET, GET(ById), DELETE]
 - **Exemplo de Requisição:**
   ```bash
-  curl -X GET http://localhost:5003/users
+  curl -X GET http://localhost:5000/users
 
 ### 2. Blogs
 
@@ -30,7 +30,7 @@ A seguir estão as principais rotas e APIs fornecidas pelo backend.
 - **Método HTTP:** [GET, GET(ById), POST, DELETE]
 - **Exemplo de Requisição:**
   ```bash
-  curl -X GET http://localhost:5003/blogs
+  curl -X GET http://localhost:5000/blogs
 
 ### 3. Category
 
@@ -38,7 +38,7 @@ A seguir estão as principais rotas e APIs fornecidas pelo backend.
 - **Método HTTP:** [GET, GET(ById), POST, DELETE]
 - **Exemplo de Requisição:**
   ```bash
-  curl -X GET http://localhost:5003/category
+  curl -X GET http://localhost:5000/category
 
 ### 4. Category
 
@@ -46,7 +46,7 @@ A seguir estão as principais rotas e APIs fornecidas pelo backend.
 - **Método HTTP:** [GET, GET(ById), POST, DELETE]
 - **Exemplo de Requisição:**
   ```bash
-  curl -X GET http://localhost:5003/category
+  curl -X GET http://localhost:5000/category
 
 ### 5. FreeQuote
 
@@ -54,7 +54,7 @@ A seguir estão as principais rotas e APIs fornecidas pelo backend.
 - **Método HTTP:** [GET, GET(ById), POST, DELETE]
 - **Exemplo de Requisição:**
   ```bash
-  curl -X GET http://localhost:5003/freequote
+  curl -X GET http://localhost:5000/freequote
 
 ### 5. Message
 
@@ -62,4 +62,4 @@ A seguir estão as principais rotas e APIs fornecidas pelo backend.
 - **Método HTTP:** [GET, GET(ById), POST, DELETE]
 - **Exemplo de Requisição:**
   ```bash
-  curl -X GET http://localhost:5003/message
+  curl -X GET http://localhost:5000/message
