@@ -51,7 +51,7 @@ namespace backendCsharp.Controllers {
                     return Ok(InserindoDados(dadosObtidos));
                 } else {
 
-                    return Ok("Unauthorized");
+                    return Unauthorized("Unauthorized");
                 }
 
             } catch (Exception ex) {
@@ -85,7 +85,7 @@ namespace backendCsharp.Controllers {
                     return Ok(null);
                 } else {
 
-                    return Ok("Unauthorized");
+                    return Unauthorized("Unauthorized");
                 }
 
             } catch (Exception ex) {
@@ -118,7 +118,7 @@ namespace backendCsharp.Controllers {
                     return Ok(AlterarCategoria(id, dadosObtidos));
                 } else {
 
-                    return Ok("Unauthorized");
+                    return Unauthorized("Unauthorized");
                 }
 
             } catch (Exception ex) {

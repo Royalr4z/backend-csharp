@@ -51,7 +51,7 @@ namespace backendCsharp.Controllers {
                     return Ok(InserindoDados(dadosObtidos));
                 } else {
 
-                    return Ok("Unauthorized");
+                    return Unauthorized("Unauthorized");
                 }
 
             } catch (Exception ex) {
@@ -85,7 +85,7 @@ namespace backendCsharp.Controllers {
                     return Ok();
                 } else {
 
-                    return Ok("Unauthorized");
+                    return Unauthorized("Unauthorized");
                 }
 
             } catch (Exception ex) {

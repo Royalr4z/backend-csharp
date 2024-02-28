@@ -37,7 +37,7 @@ namespace backendCsharp.Controllers {
                 return Ok(ConsultarMessagens(0));
             } else {
 
-                return Ok("Unauthorized");
+                return Unauthorized("Unauthorized");
             }
         }
 
@@ -63,7 +63,7 @@ namespace backendCsharp.Controllers {
                 return Ok(ConsultarMessagens(id));
             } else {
 
-                return Ok("Unauthorized");
+                return Unauthorized("Unauthorized");
             }
         }
 
@@ -104,7 +104,7 @@ namespace backendCsharp.Controllers {
                     return Ok();
                 } else {
 
-                    return Ok("Unauthorized");
+                    return Unauthorized("Unauthorized");
                 }
 
             } catch (Exception ex) {
