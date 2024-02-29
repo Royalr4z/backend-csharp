@@ -19,7 +19,7 @@ A seguir estão as principais rotas e APIs fornecidas pelo backend.
 ### 1. Users
 
 - **Descrição:** API de Usuário
-- **Método HTTP:** [GET, GET(ById), DELETE]
+- **Método HTTP:** [GET, GET(ById), PUT, DELETE]
 - **Exemplo de Requisição:**
   ```bash
   curl -X GET http://localhost:5000/users
